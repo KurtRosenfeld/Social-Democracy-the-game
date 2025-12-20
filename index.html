@@ -7,39 +7,7 @@
     <link rel="stylesheet" href="game.css">
     <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        /* ADDED: Year progress bar styles */
-        .year-progress-container {
-            margin-top: 10px;
-            background: rgba(0, 0, 0, 0.2);
-            padding: 10px;
-            border-radius: 5px;
-            width: 300px;
-        }
-        
-        .year-progress-bar {
-            height: 8px;
-            background: #333;
-            border-radius: 4px;
-            overflow: hidden;
-            margin-top: 5px;
-        }
-        
-        .year-progress-fill {
-            height: 100%;
-            background: #E3000F;
-            width: 0%; /* Will be updated by JS */
-            transition: width 0.3s ease;
-        }
-        
-        .year-progress-labels {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.8rem;
-            color: #aaa;
-            margin-top: 5px;
-        }
-    </style>
+    <!-- REMOVED: Inline styles for year progress bar -->
 </head>
 <body>
     <!-- HEADER -->
@@ -49,17 +17,11 @@
             <p id="game-subtitle">SPD Political Simulator</p>
         </div>
         <div class="header-center">
-            <div id="current-date">September 1890</div>
-            <!-- ADDED: Year progress bar -->
-            <div class="year-progress-container">
-                <div style="font-size: 0.9rem; color: #ccc;">Progress: 1890-1920</div>
-                <div class="year-progress-bar">
-                    <div class="year-progress-fill" id="year-progress-fill"></div>
-                </div>
-                <div class="year-progress-labels">
-                    <span>1890</span>
-                    <span>1905</span>
-                    <span>1920</span>
+            <!-- CHANGED: Use existing CSS classes -->
+            <div id="date-display">
+                <span id="current-date">September 1890</span>
+                <div id="date-progress">
+                    <div id="date-progress-bar"></div>
                 </div>
             </div>
         </div>
@@ -330,17 +292,30 @@
             }
         }
         
-        // ADDED: Update year progress bar (call this from game.js)
-        function updateYearProgress(year) {
-            const progress = ((year - 1890) / 30) * 100; // 1890-1920 = 30 years
-            const progressFill = document.getElementById('year-progress-fill');
-            if (progressFill) {
-                progressFill.style.width = Math.min(Math.max(progress, 0), 100) + '%';
+        // CHANGED: Update date progress bar function
+        function updateDateProgress(month) {
+            // month is 1-12
+            const progress = ((month - 1) / 12) * 100;
+            const progressBar = document.getElementById('date-progress-bar');
+            if (progressBar) {
+                progressBar.style.width = Math.min(Math.max(progress, 0), 100) + '%';
             }
         }
         
-        // Example: Call this when time advances
-        // updateYearProgress(1895);
+        // CHANGED: Update year progress function
+        function updateYearProgress(year) {
+            // 1890-1920 = 30 years
+            const progress = ((year - 1890) / 30) * 100;
+            const progressBar = document.getElementById('date-progress-bar');
+            if (progressBar) {
+                // Update progress bar width (still using date-progress-bar)
+                progressBar.style.width = Math.min(Math.max(progress, 0), 100) + '%';
+            }
+        }
+        
+        // Example: Call these when time advances
+        // updateDateProgress(3); // For month-based progress
+        // updateYearProgress(1895); // For year-based progress
     </script>
 </body>
 </html>
