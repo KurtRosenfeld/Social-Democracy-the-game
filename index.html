@@ -7,6 +7,39 @@
     <link rel="stylesheet" href="game.css">
     <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ADDED: Year progress bar styles */
+        .year-progress-container {
+            margin-top: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 5px;
+            width: 300px;
+        }
+        
+        .year-progress-bar {
+            height: 8px;
+            background: #333;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+        
+        .year-progress-fill {
+            height: 100%;
+            background: #E3000F;
+            width: 0%; /* Will be updated by JS */
+            transition: width 0.3s ease;
+        }
+        
+        .year-progress-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #aaa;
+            margin-top: 5px;
+        }
+    </style>
 </head>
 <body>
     <!-- HEADER -->
@@ -17,6 +50,18 @@
         </div>
         <div class="header-center">
             <div id="current-date">September 1890</div>
+            <!-- ADDED: Year progress bar -->
+            <div class="year-progress-container">
+                <div style="font-size: 0.9rem; color: #ccc;">Progress: 1890-1920</div>
+                <div class="year-progress-bar">
+                    <div class="year-progress-fill" id="year-progress-fill"></div>
+                </div>
+                <div class="year-progress-labels">
+                    <span>1890</span>
+                    <span>1905</span>
+                    <span>1920</span>
+                </div>
+            </div>
         </div>
         <div class="header-right">
             <button class="header-btn" onclick="alert('Save feature coming soon')">
@@ -24,6 +69,10 @@
             </button>
             <button class="header-btn" onclick="alert('Load feature coming soon')">
                 <i class="fas fa-folder-open"></i> Load
+            </button>
+            <!-- ADDED: Map toggle button -->
+            <button class="header-btn" id="toggle-map-btn" title="Toggle map view">
+                <i class="fas fa-map"></i> Map
             </button>
         </div>
     </header>
@@ -52,11 +101,25 @@
                 </div>
             </div>
 
+            <!-- CHANGED: Removed faction display from here -->
+            <!-- It will now appear in the Party tab instead -->
+            
+            <!-- ADDED: Timeline section -->
             <div class="stat-box">
-                <h3><i class="fas fa-users"></i> Factions</h3>
-                <div class="faction-bar">
-                    <div class="faction-radical" style="width: 45%">Radicals: 45%</div>
-                    <div class="faction-moderate" style="width: 55%">Moderates: 55%</div>
+                <h3><i class="fas fa-history"></i> Timeline</h3>
+                <div class="timeline">
+                    <div class="timeline-item current">
+                        <div class="timeline-date">1890</div>
+                        <div class="timeline-event">Anti-Socialist Laws lifted</div>
+                    </div>
+                    <div class="timeline-item future">
+                        <div class="timeline-date">1914</div>
+                        <div class="timeline-event">World War I begins</div>
+                    </div>
+                    <div class="timeline-item future">
+                        <div class="timeline-date">1918</div>
+                        <div class="timeline-event">German Revolution</div>
+                    </div>
                 </div>
             </div>
         </aside>
@@ -77,6 +140,18 @@
                     <!-- Choices will be inserted here by JavaScript -->
                     <div class="choice-placeholder">
                         <p><i>Decision buttons will appear here</i></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ADDED: Map container (hidden by default) -->
+            <div id="map-container" style="display: none; height: 100%;">
+                <div class="map-placeholder" style="text-align: center; padding: 60px 20px; color: #888;">
+                    <i class="fas fa-map-marked-alt fa-3x" style="margin-bottom: 20px; opacity: 0.3;"></i>
+                    <h3>Interactive Map</h3>
+                    <p>Load JSON map data to display German states or electoral districts.</p>
+                    <div style="margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.1); border-radius: 5px;">
+                        <p><small>Map data placeholder for future JSON integration</small></p>
                     </div>
                 </div>
             </div>
@@ -101,6 +176,10 @@
                 <button class="tab-btn" data-tab="politics">
                     <i class="fas fa-handshake"></i> Politics
                 </button>
+                <!-- ADDED: Map tab -->
+                <button class="tab-btn" data-tab="map">
+                    <i class="fas fa-map"></i> Map
+                </button>
             </nav>
 
             <!-- Tab Content Area -->
@@ -122,6 +201,17 @@
 
                 <div class="tab-pane" id="tab-party">
                     <h3>Party Management</h3>
+                    <!-- ADDED: Faction display moved here -->
+                    <div class="faction-display" style="margin: 15px 0;">
+                        <div style="display: flex; height: 30px; border-radius: 4px; overflow: hidden; margin-bottom: 10px;">
+                            <div class="faction-radical" style="width: 45%; background: #e63946; color: white; display: flex; align-items: center; padding-left: 10px; font-weight: bold;">
+                                Radicals: 45%
+                            </div>
+                            <div class="faction-moderate" style="width: 55%; background: #457b9d; color: white; display: flex; align-items: center; padding-left: 10px; font-weight: bold;">
+                                Moderates: 55%
+                            </div>
+                        </div>
+                    </div>
                     <p>Party leadership, advisors, and faction management will appear here.</p>
                     <div class="placeholder">
                         <p><i class="fas fa-user-tie fa-2x"></i></p>
@@ -144,6 +234,28 @@
                     <div class="placeholder">
                         <p><i class="fas fa-handshake fa-2x"></i></p>
                         <p>Politics features coming soon</p>
+                    </div>
+                </div>
+                
+                <!-- ADDED: Map tab content -->
+                <div class="tab-pane" id="tab-map">
+                    <h3><i class="fas fa-map"></i> Map Controls</h3>
+                    <p>Control map display and load JSON map data.</p>
+                    
+                    <div class="map-controls" style="margin: 15px 0;">
+                        <button class="map-control-btn" onclick="toggleMapView()" style="width: 100%; margin-bottom: 10px;">
+                            <i class="fas fa-eye"></i> Toggle Map View
+                        </button>
+                        
+                        <div style="margin: 15px 0; padding: 10px; background: rgba(0,0,0,0.1); border-radius: 5px;">
+                            <h4>Map Data</h4>
+                            <p><small>Load JSON map files for:</small></p>
+                            <ul style="font-size: 0.9rem; color: #aaa;">
+                                <li>German States (1890 borders)</li>
+                                <li>Reichstag electoral districts</li>
+                                <li>Party support by region</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -192,7 +304,43 @@
                     document.getElementById('tab-' + tabName).classList.add('active');
                 });
             });
+            
+            // ADDED: Map toggle button functionality
+            document.getElementById('toggle-map-btn').addEventListener('click', toggleMapView);
         });
+        
+        // ADDED: Map toggle function
+        function toggleMapView() {
+            const eventContainer = document.getElementById('event-container');
+            const mapContainer = document.getElementById('map-container');
+            const mapBtn = document.getElementById('toggle-map-btn');
+            
+            if (eventContainer.style.display !== 'none') {
+                // Switch to map view
+                eventContainer.style.display = 'none';
+                mapContainer.style.display = 'block';
+                mapBtn.innerHTML = '<i class="fas fa-scroll"></i> Events';
+                mapBtn.title = 'Switch back to events view';
+            } else {
+                // Switch to event view
+                eventContainer.style.display = 'block';
+                mapContainer.style.display = 'none';
+                mapBtn.innerHTML = '<i class="fas fa-map"></i> Map';
+                mapBtn.title = 'Toggle map view';
+            }
+        }
+        
+        // ADDED: Update year progress bar (call this from game.js)
+        function updateYearProgress(year) {
+            const progress = ((year - 1890) / 30) * 100; // 1890-1920 = 30 years
+            const progressFill = document.getElementById('year-progress-fill');
+            if (progressFill) {
+                progressFill.style.width = Math.min(Math.max(progress, 0), 100) + '%';
+            }
+        }
+        
+        // Example: Call this when time advances
+        // updateYearProgress(1895);
     </script>
 </body>
 </html>
