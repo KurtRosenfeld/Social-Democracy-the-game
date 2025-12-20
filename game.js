@@ -9,7 +9,7 @@ class GermanyGame {
         // Basic game state - REPLACE WITH YOUR DATA
         this.state = {
             year: 1890,
-            month: 8, // September
+            month: 8, // August
             party: {
                 members: 100000,
                 seats: 35,
@@ -67,7 +67,7 @@ class GermanyGame {
         // REPLACE THIS WITH YOUR EVENT LOADING LOGIC
         this.state.currentEvent = {
             title: "Welcome to Germany 1890-1920",
-            date: "September 1890",
+            date: "August 1890",
             description: "This is a placeholder event. Replace this with your historical events.",
             choices: [] // Add choice objects here
         };
@@ -121,7 +121,7 @@ class GermanyGame {
     document.getElementById('stat-members').textContent = this.state.party.members.toLocaleString();
     document.getElementById('stat-seats').textContent = this.state.party.seats;
     document.getElementById('stat-funds').textContent = `${this.state.party.resources}`; // Changed
-    document.getElementById('stat-influence').textContent = `${this.state.budget}`;
+    document.getElementById('stat-budget').textContent = `${this.state.budget}`;
     
     // Update progress bar
     this.updateDateProgress();
