@@ -3,180 +3,195 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Social Democracy: the game</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <title>Germany 1890-1920 | SPD Simulator</title>
+    <link rel="stylesheet" href="game.css">
     <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- LIBRARIES -->
-    <script src="jquery-3.7.1.min.js"></script>
-    <script src="d3.v7.min.js"></script>
 </head>
 <body>
-    <div id="game-container">
-        <!-- HEADER -->
-        <header id="game-header">
-            <div id="header-left">
-                <h1><i class="fas fa-flag"></i> Social Democracy</h1>
-                <div id="game-subtitle">The SPD Game</div>
-            </div>
-            <div id="header-center">
-                <div id="date-display">
-                    <span id="current-date">August 1890</span>
-                    <div id="date-progress">
-                        <div id="date-progress-bar"></div>
-                    </div>
-                </div>
-            </div>
-            <div id="header-right">
-                <button id="save-btn" class="header-btn"><i class="fas fa-save"></i> Save</button>
-                <button id="load-btn" class="header-btn"><i class="fas fa-folder-open"></i> Load</button>
-                <button id="options-btn" class="header-btn"><i class="fas fa-cog"></i> Options</button>
-            </div>
-        </header>
-
-        <!-- MAIN CONTENT AREA -->
-        <main id="main-content">
-            <!-- LEFT SIDEBAR - STATS -->
-            <aside id="left-sidebar">
-                <div class="sidebar-section">
-                    <h3><i class="fas fa-chart-line"></i> Party Status</h3>
-                    <div class="stat-item">
-                        <span class="stat-label">Members:</span>
-                        <span class="stat-value" id="stat-members">100,000</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Reichstag Seats:</span>
-                        <span class="stat-value" id="stat-seats">35</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Monetary Resources:</span>
-                        <span class="stat-value" id="stat-funds">80</span>
-                    </div>
-                  <div class="stat-item">
-                        <span class="stat-label">Active Resources:</span>
-                        <span class="stat-value" id="stat-actcap">80</span>
-                    </div>
-                </div>
-
-            <!-- CENTER - MAIN GAME SCENE -->
-            <section id="main-scene">
-                <div id="event-container">
-                    <div id="event-header">
-                        <h2 id="event-title">End of the Anti-Socialist Laws</h2>
-                        <div id="event-date">September 1890</div>
-                    </div>
-                    <div id="event-body">
-                        <div id="event-image">
-                            <!-- Image would go here -->
-                            <div class="placeholder-image">
-                                <i class="fas fa-scroll fa-4x"></i>
-                                <p>Historical Image</p>
-                            </div>
-                        </div>
-                        <div id="event-text">
-                            <p>The Sozialistengesetze have expired. After 12 years of repression, the SPD can operate legally across the German Empire. The party has grown from 10,000 to 100,000 members despite the bans.</p>
-                            <p>August Bebel turns to you for guidance: How should the party proceed now that we can operate in the open?</p>
-                        </div>
-                    </div>
-                    <div id="event-actions">
-                        <button class="action-btn" data-choice="0">
-                            <i class="fas fa-landmark"></i>
-                            <span>Focus on parliamentary work and elections</span>
-                            <small>+5 Reichstag seats, +5 Influence</small>
-                        </button>
-                        <button class="action-btn" data-choice="1">
-                            <i class="fas fa-fist-raised"></i>
-                            <span>Build revolutionary cadres for class struggle</span>
-                            <small>+15 Radical support, +20k members</small>
-                        </button>
-                        <button class="action-btn" data-choice="2">
-                            <i class="fas fa-handshake"></i>
-                            <span>Strengthen ties with trade unions</span>
-                            <small>+30k members, +10k funds</small>
-                        </button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- RIGHT SIDEBAR - TABS NAVIGATION -->
-            <aside id="right-sidebar">
-                <nav id="tab-navigation">
-                    <button class="tab-btn active" data-tab="main">
-                        <i class="fas fa-home"></i>
-                        <span>Main Scene</span>
-                    </button>
-                    <button class="tab-btn" data-tab="government">
-                        <i class="fas fa-landmark"></i>
-                        <span>Government</span>
-                    </button>
-                    <button class="tab-btn" data-tab="party">
-                        <i class="fas fa-users"></i>
-                        <span>Party</span>
-                    </button>
-                    <button class="tab-btn" data-tab="status">
-                        <i class="fas fa-chart-bar"></i>
-                        <span>Status</span>
-                    </button>
-                    <button class="tab-btn" data-tab="politics">
-                        <i class="fas fa-handshake"></i>
-                        <span>Politics</span>
-                    </button>
-                </nav>
-
-                <!-- TAB CONTENT CONTAINER -->
-                <div id="tab-content">
-                    <!-- Content will be loaded here dynamically -->
-                    <div id="tab-main" class="tab-pane active">
-                        <p>Welcome to the main scene. Events and decisions appear here.</p>
-                        <p>Use the buttons above to navigate to other game sections.</p>
-                    </div>
-                </div>
-            </aside>
-        </main>
-
-        <!-- FOOTER -->
-        <footer id="game-footer">
-            <div id="footer-left">
-                <span id="current-event">Germany 1890, SPD</span>
-            </div>
-            <div id="footer-center">
-                <button id="next-turn-btn" class="primary-btn">
-                    <i class="fas fa-forward"></i> Advance to Next Month
-                </button>
-            </div>
-            <div id="footer-right">
-                <span id="game-version">v0.1.0 | SPD Simulator</span>
-            </div>
-        </footer>
-
-        <!-- MODALS -->
-        <div id="save-modal" class="modal" style="display: none;">
-            <div class="modal-content">
-                <h2><i class="fas fa-save"></i> Save Game</h2>
-                <!-- Save slots would go here -->
-                <div class="modal-actions">
-                    <button class="secondary-btn" id="close-save">Close</button>
-                </div>
-            </div>
+    <!-- HEADER -->
+    <header id="game-header">
+        <div class="header-left">
+            <h1 id="game-title">Germany 1890-1920</h1>
+            <p id="game-subtitle">SPD Political Simulator</p>
         </div>
-    </div>
+        <div class="header-center">
+            <div id="current-date">September 1890</div>
+        </div>
+        <div class="header-right">
+            <button class="header-btn" onclick="alert('Save feature coming soon')">
+                <i class="fas fa-save"></i> Save
+            </button>
+            <button class="header-btn" onclick="alert('Load feature coming soon')">
+                <i class="fas fa-folder-open"></i> Load
+            </button>
+        </div>
+    </header>
 
-    <!-- SCRIPTS -->
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <!-- MAIN GAME AREA -->
+    <main id="game-main">
+        <!-- LEFT SIDEBAR: Quick Stats -->
+        <aside id="sidebar-left">
+            <div class="stat-box">
+                <h3><i class="fas fa-chart-line"></i> Party Status</h3>
+                <div class="stat">
+                    <span class="stat-label">Members:</span>
+                    <span class="stat-value" id="stat-members">100,000</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Reichstag Seats:</span>
+                    <span class="stat-value" id="stat-seats">35</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Treasury:</span>
+                    <span class="stat-value" id="stat-funds">50,000ℳ</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Influence:</span>
+                    <span class="stat-value" id="stat-influence">65%</span>
+                </div>
+            </div>
+
+            <div class="stat-box">
+                <h3><i class="fas fa-users"></i> Factions</h3>
+                <div class="faction-bar">
+                    <div class="faction-radical" style="width: 45%">Radicals: 45%</div>
+                    <div class="faction-moderate" style="width: 55%">Moderates: 55%</div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- CENTER: Main Event/Decision Area -->
+        <section id="main-scene">
+            <div id="event-container">
+                <h2 id="event-title">Event Title Goes Here</h2>
+                <div id="event-date">Date Here</div>
+                
+                <div id="event-content">
+                    <p>Event description text goes here. This is where historical events and decisions appear.</p>
+                    <p>Add your narrative text here.</p>
+                </div>
+
+                <div id="event-choices">
+                    <h3>Your Decision:</h3>
+                    <!-- Choices will be inserted here by JavaScript -->
+                    <div class="choice-placeholder">
+                        <p><i>Decision buttons will appear here</i></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- RIGHT SIDEBAR: Tabs Navigation -->
+        <aside id="sidebar-right">
+            <!-- Tab Navigation -->
+            <nav id="tab-nav">
+                <button class="tab-btn active" data-tab="main">
+                    <i class="fas fa-home"></i> Main
+                </button>
+                <button class="tab-btn" data-tab="government">
+                    <i class="fas fa-landmark"></i> Government
+                </button>
+                <button class="tab-btn" data-tab="party">
+                    <i class="fas fa-users"></i> Party
+                </button>
+                <button class="tab-btn" data-tab="status">
+                    <i class="fas fa-chart-bar"></i> Status
+                </button>
+                <button class="tab-btn" data-tab="politics">
+                    <i class="fas fa-handshake"></i> Politics
+                </button>
+            </nav>
+
+            <!-- Tab Content Area -->
+            <div id="tab-content">
+                <div class="tab-pane active" id="tab-main">
+                    <h3>Main Game Controls</h3>
+                    <p>This area shows information about the current game state.</p>
+                    <p>Use the buttons above to navigate to different game sections.</p>
+                </div>
+
+                <div class="tab-pane" id="tab-government">
+                    <h3>Government & Reichstag</h3>
+                    <p>Reichstag seat visualization and government actions will appear here.</p>
+                    <div class="placeholder">
+                        <p><i class="fas fa-chart-pie fa-2x"></i></p>
+                        <p>Government features coming soon</p>
+                    </div>
+                </div>
+
+                <div class="tab-pane" id="tab-party">
+                    <h3>Party Management</h3>
+                    <p>Party leadership, advisors, and faction management will appear here.</p>
+                    <div class="placeholder">
+                        <p><i class="fas fa-user-tie fa-2x"></i></p>
+                        <p>Party management features coming soon</p>
+                    </div>
+                </div>
+
+                <div class="tab-pane" id="tab-status">
+                    <h3>Status Overview</h3>
+                    <p>Game statistics, trends, and timeline will appear here.</p>
+                    <div class="placeholder">
+                        <p><i class="fas fa-chart-line fa-2x"></i></p>
+                        <p>Status features coming soon</p>
+                    </div>
+                </div>
+
+                <div class="tab-pane" id="tab-politics">
+                    <h3>Politics & Relations</h3>
+                    <p>Party relations and public opinion will appear here.</p>
+                    <div class="placeholder">
+                        <p><i class="fas fa-handshake fa-2x"></i></p>
+                        <p>Politics features coming soon</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- FOOTER -->
+    <footer id="game-footer">
+        <div class="footer-left">
+            <span id="current-event-display">Current: No event</span>
+        </div>
+        <div class="footer-center">
+            <button id="next-turn-btn" class="primary-btn">
+                <i class="fas fa-forward"></i> Advance Time
+            </button>
+        </div>
+        <div class="footer-right">
+            <span id="game-version">v0.1.0 | Development Build</span>
+        </div>
+    </footer>
+
+    <!-- GAME JAVASCRIPT -->
     <script src="game.js"></script>
-    <script src="tabs/government.js"></script>
-    <script src="tabs/party.js"></script>
-    <script src="tabs/status.js"></script>
-    <script src="tabs/politics.js"></script>
     
-    <!-- Initialize game -->
+    <!-- Initialize Game -->
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            window.game = new GermanyGame();
-            window.game.initialize();
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize the game
+            if (window.game) {
+                window.game.initialize();
+            }
+            
+            // Setup tab switching
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tabName = this.dataset.tab;
+                    
+                    // Update active button
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Show selected tab
+                    document.querySelectorAll('.tab-pane').forEach(pane => {
+                        pane.classList.remove('active');
+                    });
+                    document.getElementById('tab-' + tabName).classList.add('active');
+                });
+            });
         });
     </script>
 </body>
