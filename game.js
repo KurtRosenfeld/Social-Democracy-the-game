@@ -9,12 +9,12 @@ class GermanyGame {
         // Basic game state - REPLACE WITH YOUR DATA
         this.state = {
             year: 1890,
-            month: 9, // September
+            month: 8, // September
             party: {
                 members: 100000,
                 seats: 35,
-                funds: 50000,
-                influence: 65
+                funds: 20,
+                budget: 27
             },
             factions: {
                 radicals: 45,
