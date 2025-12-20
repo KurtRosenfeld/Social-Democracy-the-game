@@ -113,29 +113,23 @@ class GermanyGame {
 
     // Update all UI elements
     updateUI() {
-        // Update date
-        const monthName = this.getMonthName(this.state.month);
-        document.getElementById('current-date').textContent = `${monthName} ${this.state.year}`;
-        
-        // Update stats
-        document.getElementById('stat-members').textContent = this.state.party.members.toLocaleString();
-        document.getElementById('stat-seats').textContent = this.state.party.seats;
-        document.getElementById('stat-funds').textContent = `${this.state.party.funds.toLocaleString()}ℳ`;
-        document.getElementById('stat-influence').textContent = `${this.state.party.influence}%`;
-        
-        // Update factions
-        document.querySelector('.faction-radical').textContent = 
-            `Radicals: ${Math.round(this.state.factions.radicals)}%`;
-        document.querySelector('.faction-radical').style.width = `${this.state.factions.radicals}%`;
-        
-        document.querySelector('.faction-moderate').textContent = 
-            `Moderates: ${Math.round(this.state.factions.moderates)}%`;
-        document.querySelector('.faction-moderate').style.width = `${this.state.factions.moderates}%`;
-        
-        // Update footer
-        document.getElementById('current-event-display').textContent = 
-            `Current: ${this.state.currentEvent?.title || 'No event'}`;
-    }
+    // Update date
+    const monthName = this.getMonthName(this.state.month);
+    document.getElementById('current-date').textContent = `${monthName} ${this.state.year}`;
+    
+    // Update stats - FIXED: resources instead of funds
+    document.getElementById('stat-members').textContent = this.state.party.members.toLocaleString();
+    document.getElementById('stat-seats').textContent = this.state.party.seats;
+    document.getElementById('stat-funds').textContent = `${this.state.party.resources}`; // Changed
+    document.getElementById('stat-influence').textContent = `${this.state.budget}`;
+    
+    // Update progress bar
+    this.updateDateProgress();
+    
+    // Update footer
+    document.getElementById('current-event-display').textContent = 
+        `Current: ${this.state.currentEvent?.title || 'No event'}`;
+}
 
     // Helper: Get month name from number
     getMonthName(monthNumber) {
