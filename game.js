@@ -120,8 +120,8 @@ class GermanyGame {
     // Update stats - FIXED: resources instead of funds
     document.getElementById('stat-members').textContent = this.state.party.members.toLocaleString();
     document.getElementById('stat-seats').textContent = this.state.party.seats;
-    document.getElementById('stat-funds').textContent = `${this.state.party.resources}`; // Changed
-    document.getElementById('stat-budget').textContent = `${this.state.budget}`;
+    document.getElementById('stat-funds').textContent = this.state.party.funds; // Changed
+    document.getElementById('stat-budget').textContent = this.state.budget;
     
     // Update progress bar
     this.updateDateProgress();
