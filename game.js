@@ -140,6 +140,10 @@ class GermanyGame {
         return months[monthNumber - 1] || 'Unknown';
     }
 
+    document.querySelectorAll('button').forEach(b =>
+    b.addEventListener('click', () => console.log('Clicked:', b.textContent))
+);
+
     // ============================================
     // DATA MANAGEMENT - ADD YOUR METHODS HERE
     // ============================================
