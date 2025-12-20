@@ -58,6 +58,33 @@ body {
     font-size: 0.9rem;
 }
 
+#date-display {
+    text-align: center;
+}
+
+#current-date {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: white;
+    display: block;
+    margin-bottom: 5px;
+}
+
+#date-progress {
+    width: 300px;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+#date-progress-bar {
+    width: 25%; /* 3 months into the year */
+    height: 100%;
+    background: var(--spd-red);
+    transition: width 0.3s ease;
+}
+
 .header-center #current-date {
     font-size: 1.2rem;
     font-weight: bold;
