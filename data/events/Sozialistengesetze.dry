@@ -1,2 +1,23 @@
 title: Sozialistengesetze
 subtitle: Are now lifted
+tags: event
+view-if: year = 1890 and month = 9
+max-visits: 1
+
+= Lifting of the Sozialistengesetze
+
+Finally after ...to be added...
+
+Now it is on us to decide what to do next
+
+- @thank
+- @celebrate
+
+@thank
+on-arrival: zc_relation += 2; fvp_relation += 5; reformist_strength += 3
+
+We seek closer collaboration with friendly parties in the Reichstag.
+
+@celebrate
+
+We host a few parades across the country.
