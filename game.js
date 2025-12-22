@@ -514,3 +514,58 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// data
+const EVENT_FOLDER = 'data/events/';
+
+async function loadAllEvents() {
+    try {
+        // First, load the manual August event
+        events.push({
+            id: 'august-manual',
+            title: "The August Days",
+            subtitle: "Welcome to the game",
+            condition: "year = 1890 and month = 8",
+            maxVisits: 1,
+            content: ["Hello there!", "I hope this will work"],
+            choices: [
+                { 
+                    text: "We seek closer collaboration with friendly parties in the Reichstag.", 
+                    id: "thank",
+                    effects: { zc_relation: 2, fvp_relation: 5, reformist_strength: 3, month: 1 }
+                },
+                { 
+                    text: "We host a few parades across the country.", 
+                    id: "celebrate",
+                    effects: { month: 1 }
+                }
+            ]
+        });
+        
+        // List of event files to load
+        const eventFiles = ['september.dry', 'october.dry'];
+        
+        // Load each event file
+        for (const filename of eventFiles) {
+            try {
+                const response = await fetch(`${EVENT_FOLDER}${filename}`);
+                if (response.ok) {
+                    const content = await response.text();
+                    const eventId = filename.replace('.dry', '');
+                    const event = parseDryContent(content, eventId);
+                    if (event) {
+                        events.push(event);
+                        console.log(`Loaded ${filename} as ${eventId}`);
+                    }
+                }
+            } catch (e) {
+                console.warn(`Could not load ${filename}:`, e);
+            }
+        }
+        
+        console.log("Total events loaded:", events.length);
+        
+    } catch (error) {
+        console.error("Error loading events:", error);
+    }
+}
