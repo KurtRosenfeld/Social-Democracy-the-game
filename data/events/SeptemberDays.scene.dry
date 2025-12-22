@@ -1,0 +1,29 @@
+{
+  "title": "The Semptember Days",
+  "subtitle": "Don't bitch it up", 
+  "conditions": {
+    "year": 1890,
+    "month": 9
+  },
+  "maxVisits": 1,
+  "content": [
+    "Bro!",
+    "DONT BITCH IT UP"
+  ],
+  "choices": [
+    {
+      "text": "bitch it up",
+      "id": "thank",
+      "effects": {
+        "month": 1
+      }
+    },
+    {
+      "text": "do not",
+      "id": "celebrate", 
+      "effects": {
+        "month": 1
+      }
+    }
+  ]
+}
