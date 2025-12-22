@@ -509,3 +509,37 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+
+// Add this function and call it
+async function debugFileLoading() {
+    console.log("Testing file paths...");
+    
+    const testPaths = [
+        'data/events/september.dry',
+        'data/events/october.dry',
+        'events/september.dry'  // old path for comparison
+    ];
+    
+    for (const path of testPaths) {
+        try {
+            const response = await fetch(path);
+            console.log(`${path}: ${response.ok ? '✓ FOUND' : '✗ 404 Not Found'}`);
+        } catch (e) {
+            console.log(`${path}: ✗ ERROR - ${e.message}`);
+        }
+    }
+}
+
+// Call it in initializeGame
+async function initializeGame() {
+    console.log("Initializing game...");
+    
+    // Debug file loading
+    await debugFileLoading();
+    
+    // Load all event files
+    await loadAllEvents();
+    
+    // ... rest of your code
+}
