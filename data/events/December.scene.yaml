@@ -1,0 +1,16 @@
+title: The December
+subtitle: Welcome to the game
+tags: event
+view-if: year = 1890 and month = 12
+max-visits: 1
+---
+"Hello there!"
+"I hope this will work"
+- [We seek closer collaboration with friendly parties in the Reichstag.] @thank
+- [We host a few parades across the country.] @celebrate
+---
+@thank
+on-arrival: zc_relation += 2; fvp_relation += 5; reformist_strength += 3; month += 1
+
+@celebrate
+on-arrival: month += 1
