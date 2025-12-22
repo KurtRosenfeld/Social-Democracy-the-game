@@ -105,33 +105,6 @@ function selectChoice(choiceId) {
         loadNextEvent();
     }, 500);
 }
-
-// Load next event
-function loadNextEvent() {
-    document.getElementById('event-title').textContent = "September 1890";
-    document.getElementById('event-date').textContent = getDateDisplay();
-    
-    const contentDiv = document.getElementById('event-content');
-    contentDiv.innerHTML = `
-        <p>The SPD continues to grow in influence...</p>
-        <p>What should our next move be?</p>
-    `;
-    
-    const choicesDiv = document.getElementById('event-choices');
-    
-    // Clear old choices
-    const oldButtons = choicesDiv.querySelectorAll('.choice-btn');
-    oldButtons.forEach(btn => btn.remove());
-    
-    // Add new choices
-    const choice1 = document.createElement('button');
-    choice1.className = 'choice-btn';
-    choice1.textContent = "Focus on worker education";
-    choice1.onclick = function() {
-        alert("Worker education selected!");
-        advanceTime();
-    };
-    choicesDiv.appendChild(choice1);
     
     const choice2 = document.createElement('button');
     choice2.className = 'choice-btn';
