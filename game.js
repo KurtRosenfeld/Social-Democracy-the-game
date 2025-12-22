@@ -305,3 +305,141 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize game
     initializeGame();
 });
+
+// Initialize the game
+function initializeGame() {
+    console.log("Game initializing...");
+    
+    // Load and display the initial event
+    loadInitialEvent();
+}
+
+// Function to load and display your event
+function loadInitialEvent() {
+    // Replace placeholder content with your event
+    document.getElementById('event-title').textContent = "The August Days";
+    document.getElementById('event-date').textContent = "August 1890";
+    
+    // Update event content
+    const contentDiv = document.getElementById('event-content');
+    contentDiv.innerHTML = `
+        <p><strong>"Hello there!"</strong></p>
+        <p><strong>"I hope this will work"</strong></p>
+    `;
+    
+    // Hide the placeholder
+    document.getElementById('choice-placeholder').style.display = 'none';
+    
+    // Create choice buttons
+    const choicesContainer = document.getElementById('choices-container');
+    choicesContainer.innerHTML = ''; // Clear any existing choices
+    
+    // Add first choice button
+    const choice1 = document.createElement('button');
+    choice1.className = 'choice-btn';
+    choice1.textContent = "We seek closer collaboration with friendly parties in the Reichstag.";
+    choice1.onclick = function() {
+        selectChoice('thank');
+    };
+    choicesContainer.appendChild(choice1);
+    
+    // Add second choice button
+    const choice2 = document.createElement('button');
+    choice2.className = 'choice-btn';
+    choice2.textContent = "We host a few parades across the country.";
+    choice2.onclick = function() {
+        selectChoice('celebrate');
+    };
+    choicesContainer.appendChild(choice2);
+}
+
+// Handle choice selection
+function selectChoice(choiceId) {
+    console.log("Choice selected:", choiceId);
+    
+    // Apply effects based on choice
+    if (choiceId === 'thank') {
+        // Apply thank choice effects
+        alert("Choice 1 selected: Collaborating with parties");
+        // Here you would update game state
+        // month += 1, etc.
+    } else if (choiceId === 'celebrate') {
+        // Apply celebrate choice effects
+        alert("Choice 2 selected: Hosting parades");
+        // Here you would update game state
+        // month += 1
+    }
+    
+    // Advance time
+    advanceTime();
+}
+
+// Advance time function
+function advanceTime() {
+    // Update the date display
+    const dateElement = document.getElementById('current-date');
+    const currentText = dateElement.textContent;
+    
+    // Simple month advancement (for demo)
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                   'July', 'August', 'September', 'October', 'November', 'December'];
+    
+    // Parse current date
+    let [currentMonth, currentYear] = currentText.split(' ');
+    currentYear = parseInt(currentYear);
+    
+    // Find current month index
+    let monthIndex = months.indexOf(currentMonth);
+    monthIndex = (monthIndex + 1) % 12;
+    
+    // Increment year if we wrapped around
+    if (monthIndex === 0 && currentMonth !== 'December') {
+        currentYear++;
+    }
+    
+    // Update display
+    dateElement.textContent = `${months[monthIndex]} ${currentYear}`;
+    
+    // Check for next event
+    setTimeout(() => {
+        loadNextEvent();
+    }, 1000);
+}
+
+// Load next event (for demo)
+function loadNextEvent() {
+    document.getElementById('event-title').textContent = "Next Event";
+    document.getElementById('event-date').textContent = document.getElementById('current-date').textContent;
+    
+    const contentDiv = document.getElementById('event-content');
+    contentDiv.innerHTML = `
+        <p>The SPD continues to grow in influence...</p>
+        <p>What should our next move be?</p>
+    `;
+    
+    const choicesContainer = document.getElementById('choices-container');
+    choicesContainer.innerHTML = '';
+    
+    // Add new choices
+    const choice1 = document.createElement('button');
+    choice1.className = 'choice-btn';
+    choice1.textContent = "Focus on worker education";
+    choicesContainer.appendChild(choice1);
+    
+    const choice2 = document.createElement('button');
+    choice2.className = 'choice-btn';
+    choice2.textContent = "Expand party press";
+    choicesContainer.appendChild(choice2);
+}
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Connect the "Advance Time" button
+    const nextTurnBtn = document.getElementById('next-turn-btn');
+    if (nextTurnBtn) {
+        nextTurnBtn.addEventListener('click', advanceTime);
+    }
+    
+    // Initialize the game
+    initializeGame();
+});
