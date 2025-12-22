@@ -24,225 +24,123 @@ let currentEvent = null;
 function initializeGame() {
     console.log("Initializing game...");
     
-    // Load event files
-    loadEvents();
-    
     // Update UI with initial state
     updateGameUI();
     
-    // Check for initial events
-    checkEvents();
+    // Load and display the initial event
+    loadInitialEvent();
+    
+    // Check for initial events from YAML files (optional)
+    // checkEvents();
 }
 
-// Load all event files
-async function loadEvents() {
-    try {
-        // Load your event file
-        const response = await fetch('events/august-days.yaml');
-        const yamlText = await response.text();
-        
-        // Parse YAML (you'll need a YAML parser library or use simple parsing)
-        const eventData = parseSimpleYAML(yamlText);
-        
-        // Store event
-        events[eventData.title] = eventData;
-        
-        console.log("Loaded event:", eventData.title);
-        
-    } catch (error) {
-        console.error("Error loading events:", error);
-        // Fallback to a test event
-        createTestEvent();
-    }
-}
-
-// Simple YAML parser for basic event format
-function parseSimpleYAML(yamlText) {
-    const lines = yamlText.split('\n');
-    const event = {};
-    let currentSection = '';
-    let choiceId = '';
-    
-    for (let line of lines) {
-        line = line.trim();
-        
-        if (line.startsWith('title:')) {
-            event.title = line.substring(6).trim();
-        } else if (line.startsWith('subtitle:')) {
-            event.subtitle = line.substring(9).trim();
-        } else if (line.startsWith('tags:')) {
-            event.tags = line.substring(5).trim();
-        } else if (line.startsWith('view-if:')) {
-            event.condition = line.substring(8).trim();
-        } else if (line.startsWith('max-visits:')) {
-            event.maxVisits = parseInt(line.substring(11).trim());
-        } else if (line === '---') {
-            // Section separator
-            currentSection = 'content';
-            event.content = [];
-        } else if (line.startsWith('- [')) {
-            // Choice option
-            if (!event.choices) event.choices = [];
-            const match = line.match(/^- \[(.*?)\] @(\w+)/);
-            if (match) {
-                event.choices.push({
-                    text: match[1],
-                    id: match[2]
-                });
-            }
-        } else if (line.startsWith('@')) {
-            // Choice definition
-            choiceId = line.substring(1).trim();
-            if (!event.choiceEffects) event.choiceEffects = {};
-            event.choiceEffects[choiceId] = { onArrival: '' };
-        } else if (line.startsWith('on-arrival:')) {
-            // Choice effects
-            if (choiceId && event.choiceEffects[choiceId]) {
-                event.choiceEffects[choiceId].onArrival = line.substring(11).trim();
-            }
-        } else if (line && currentSection === 'content' && !line.startsWith('@')) {
-            // Content text (skip choice definitions)
-            if (line.startsWith('"')) {
-                event.content.push(line.substring(1, line.length - 1));
-            } else {
-                event.content.push(line);
-            }
-        }
-    }
-    
-    return event;
-}
-
-// Check conditions and trigger events
-function checkEvents() {
-    for (const eventName in events) {
-        const event = events[eventName];
-        
-        // Check view-if condition
-        if (checkCondition(event.condition)) {
-            // Check max visits
-            if (!gameState.visitedEvents.has(eventName) || 
-                (event.maxVisits && gameState.visitedEvents.count(eventName) < event.maxVisits)) {
-                
-                // Show event
-                showEvent(event);
-                gameState.visitedEvents.add(eventName);
-                break; // Show only one event at a time
-            }
-        }
-    }
-}
-
-// Check condition string
-function checkCondition(condition) {
-    if (!condition) return true;
-    
-    // Simple condition parser
-    // Example: "year = 1890 and month = 8"
-    const conditions = condition.split(' and ');
-    
-    for (let cond of conditions) {
-        const parts = cond.trim().split(/\s*=\s*/);
-        if (parts.length === 2) {
-            const variable = parts[0].trim();
-            const value = parts[1].trim();
-            
-            if (variable === 'year' && parseInt(value) !== gameState.year) {
-                return false;
-            }
-            if (variable === 'month' && parseInt(value) !== gameState.month) {
-                return false;
-            }
-        }
-    }
-    
-    return true;
-}
-
-// Display event in UI
-function showEvent(event) {
-    currentEvent = event;
-    
-    // Update HTML elements
-    document.getElementById('event-title').textContent = event.title;
+// Function to load and display your event
+function loadInitialEvent() {
+    // Replace placeholder content with your event
+    document.getElementById('event-title').textContent = "The August Days";
     document.getElementById('event-date').textContent = getDateDisplay();
     
     // Update event content
     const contentDiv = document.getElementById('event-content');
-    contentDiv.innerHTML = '';
-    event.content.forEach(text => {
-        const p = document.createElement('p');
-        p.textContent = text;
-        contentDiv.appendChild(p);
-    });
+    contentDiv.innerHTML = `
+        <p><strong>"Hello there!"</strong></p>
+        <p><strong>"I hope this will work"</strong></p>
+    `;
     
-    // Update choices
-    const choicesDiv = document.getElementById('event-choices');
-    const placeholder = choicesDiv.querySelector('.choice-placeholder');
-    
+    // Hide the placeholder
+    const placeholder = document.querySelector('.choice-placeholder');
     if (placeholder) {
         placeholder.style.display = 'none';
     }
     
-    // Clear old choices
-    const oldChoices = choicesDiv.querySelectorAll('.choice-btn');
-    oldChoices.forEach(choice => choice.remove());
+    // Create choice buttons
+    const choicesDiv = document.getElementById('event-choices');
     
-    // Add new choices
-    if (event.choices) {
-        event.choices.forEach(choice => {
-            const button = document.createElement('button');
-            button.className = 'choice-btn';
-            button.textContent = choice.text;
-            button.dataset.choiceId = choice.id;
-            button.onclick = () => selectChoice(choice.id);
-            choicesDiv.appendChild(button);
-        });
-    }
+    // Clear any existing choice buttons
+    const oldButtons = choicesDiv.querySelectorAll('.choice-btn');
+    oldButtons.forEach(btn => btn.remove());
+    
+    // Add first choice button
+    const choice1 = document.createElement('button');
+    choice1.className = 'choice-btn';
+    choice1.textContent = "We seek closer collaboration with friendly parties in the Reichstag.";
+    choice1.onclick = function() {
+        selectChoice('thank');
+    };
+    choicesDiv.appendChild(choice1);
+    
+    // Add second choice button
+    const choice2 = document.createElement('button');
+    choice2.className = 'choice-btn';
+    choice2.textContent = "We host a few parades across the country.";
+    choice2.onclick = function() {
+        selectChoice('celebrate');
+    };
+    choicesDiv.appendChild(choice2);
 }
 
 // Handle choice selection
 function selectChoice(choiceId) {
-    if (!currentEvent || !currentEvent.choiceEffects || !currentEvent.choiceEffects[choiceId]) {
-        console.log("No effects for choice:", choiceId);
-        advanceTime();
-        return;
+    console.log("Choice selected:", choiceId);
+    
+    // Apply effects based on choice
+    if (choiceId === 'thank') {
+        // Apply thank choice effects
+        gameState.stats.zc_relation += 2;
+        gameState.stats.fvp_relation += 5;
+        gameState.stats.reformist_strength += 3;
+        gameState.month += 1;
+        console.log("Effects applied: +2 zc_relation, +5 fvp_relation, +3 reformist_strength, +1 month");
+    } else if (choiceId === 'celebrate') {
+        // Apply celebrate choice effects
+        gameState.month += 1;
+        console.log("Effects applied: +1 month");
     }
     
-    // Parse and apply effects
-    const effects = currentEvent.choiceEffects[choiceId].onArrival;
-    if (effects) {
-        applyEffects(effects);
-    }
+    // Update UI
+    updateGameUI();
     
-    // Advance time and check for new events
-    advanceTime();
+    // Advance time and load next event
+    setTimeout(() => {
+        loadNextEvent();
+    }, 500);
 }
 
-// Apply effects string
-function applyEffects(effects) {
-    const statements = effects.split(';');
+// Load next event
+function loadNextEvent() {
+    document.getElementById('event-title').textContent = "September 1890";
+    document.getElementById('event-date').textContent = getDateDisplay();
     
-    statements.forEach(statement => {
-        const parts = statement.trim().split(/\s*([+\-]?=)\s*/);
-        if (parts.length === 3) {
-            const variable = parts[0].trim();
-            const operator = parts[1].trim();
-            const value = parts[2].trim();
-            
-            if (operator === '+=') {
-                if (variable in gameState.stats) {
-                    gameState.stats[variable] += parseInt(value);
-                } else if (variable === 'month') {
-                    gameState.month += parseInt(value);
-                } else if (variable === 'year') {
-                    gameState.year += parseInt(value);
-                }
-            }
-        }
-    });
+    const contentDiv = document.getElementById('event-content');
+    contentDiv.innerHTML = `
+        <p>The SPD continues to grow in influence...</p>
+        <p>What should our next move be?</p>
+    `;
     
-    updateGameUI();
+    const choicesDiv = document.getElementById('event-choices');
+    
+    // Clear old choices
+    const oldButtons = choicesDiv.querySelectorAll('.choice-btn');
+    oldButtons.forEach(btn => btn.remove());
+    
+    // Add new choices
+    const choice1 = document.createElement('button');
+    choice1.className = 'choice-btn';
+    choice1.textContent = "Focus on worker education";
+    choice1.onclick = function() {
+        alert("Worker education selected!");
+        advanceTime();
+    };
+    choicesDiv.appendChild(choice1);
+    
+    const choice2 = document.createElement('button');
+    choice2.className = 'choice-btn';
+    choice2.textContent = "Expand party press";
+    choice2.onclick = function() {
+        alert("Party press expansion selected!");
+        advanceTime();
+    };
+    choicesDiv.appendChild(choice2);
 }
 
 // Advance time by one month
@@ -255,7 +153,6 @@ function advanceTime() {
     }
     
     updateGameUI();
-    checkEvents();
 }
 
 // Update all UI elements
@@ -269,8 +166,10 @@ function updateGameUI() {
     document.getElementById('stat-funds').textContent = gameState.stats.funds;
     document.getElementById('stat-budget').textContent = gameState.stats.budget;
     
-    // Update progress bar
-    updateYearProgress(gameState.year);
+    // Update progress bar if function exists
+    if (typeof updateYearProgress === 'function') {
+        updateYearProgress(gameState.year);
+    }
 }
 
 // Get formatted date display
@@ -280,166 +179,60 @@ function getDateDisplay() {
     return `${months[gameState.month - 1]} ${gameState.year}`;
 }
 
-// Create a test event if loading fails
-function createTestEvent() {
-    events = {
-        "Test Event": {
-            title: "Test Event",
-            subtitle: "Debug Event",
-            content: ["This is a test event to debug the system.", "If you see this, your YAML files aren't loading correctly."],
-            choices: [
-                { text: "Continue", id: "continue" }
-            ],
-            choiceEffects: {
-                continue: { onArrival: "month += 1" }
-            }
-        }
-    };
-}
-
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', function() {
-    // Hook up the advance time button
-    document.getElementById('next-turn-btn').addEventListener('click', advanceTime);
+    console.log("DOM loaded, setting up game...");
     
-    // Initialize game
-    initializeGame();
-});
-
-// Initialize the game
-function initializeGame() {
-    console.log("Game initializing...");
-    
-    // Load and display the initial event
-    loadInitialEvent();
-}
-
-// Function to load and display your event
-function loadInitialEvent() {
-    // Replace placeholder content with your event
-    document.getElementById('event-title').textContent = "The August Days";
-    document.getElementById('event-date').textContent = "August 1890";
-    
-    // Update event content
-    const contentDiv = document.getElementById('event-content');
-    contentDiv.innerHTML = `
-        <p><strong>"Hello there!"</strong></p>
-        <p><strong>"I hope this will work"</strong></p>
-    `;
-    
-    // Hide the placeholder
-    document.getElementById('choice-placeholder').style.display = 'none';
-    
-    // Create choice buttons
-    const choicesContainer = document.getElementById('choices-container');
-    choicesContainer.innerHTML = ''; // Clear any existing choices
-    
-    // Add first choice button
-    const choice1 = document.createElement('button');
-    choice1.className = 'choice-btn';
-    choice1.textContent = "We seek closer collaboration with friendly parties in the Reichstag.";
-    choice1.onclick = function() {
-        selectChoice('thank');
-    };
-    choicesContainer.appendChild(choice1);
-    
-    // Add second choice button
-    const choice2 = document.createElement('button');
-    choice2.className = 'choice-btn';
-    choice2.textContent = "We host a few parades across the country.";
-    choice2.onclick = function() {
-        selectChoice('celebrate');
-    };
-    choicesContainer.appendChild(choice2);
-}
-
-// Handle choice selection
-function selectChoice(choiceId) {
-    console.log("Choice selected:", choiceId);
-    
-    // Apply effects based on choice
-    if (choiceId === 'thank') {
-        // Apply thank choice effects
-        alert("Choice 1 selected: Collaborating with parties");
-        // Here you would update game state
-        // month += 1, etc.
-    } else if (choiceId === 'celebrate') {
-        // Apply celebrate choice effects
-        alert("Choice 2 selected: Hosting parades");
-        // Here you would update game state
-        // month += 1
-    }
-    
-    // Advance time
-    advanceTime();
-}
-
-// Advance time function
-function advanceTime() {
-    // Update the date display
-    const dateElement = document.getElementById('current-date');
-    const currentText = dateElement.textContent;
-    
-    // Simple month advancement (for demo)
-    const months = ['January', 'February', 'March', 'April', 'May', 'June', 
-                   'July', 'August', 'September', 'October', 'November', 'December'];
-    
-    // Parse current date
-    let [currentMonth, currentYear] = currentText.split(' ');
-    currentYear = parseInt(currentYear);
-    
-    // Find current month index
-    let monthIndex = months.indexOf(currentMonth);
-    monthIndex = (monthIndex + 1) % 12;
-    
-    // Increment year if we wrapped around
-    if (monthIndex === 0 && currentMonth !== 'December') {
-        currentYear++;
-    }
-    
-    // Update display
-    dateElement.textContent = `${months[monthIndex]} ${currentYear}`;
-    
-    // Check for next event
-    setTimeout(() => {
-        loadNextEvent();
-    }, 1000);
-}
-
-// Load next event (for demo)
-function loadNextEvent() {
-    document.getElementById('event-title').textContent = "Next Event";
-    document.getElementById('event-date').textContent = document.getElementById('current-date').textContent;
-    
-    const contentDiv = document.getElementById('event-content');
-    contentDiv.innerHTML = `
-        <p>The SPD continues to grow in influence...</p>
-        <p>What should our next move be?</p>
-    `;
-    
-    const choicesContainer = document.getElementById('choices-container');
-    choicesContainer.innerHTML = '';
-    
-    // Add new choices
-    const choice1 = document.createElement('button');
-    choice1.className = 'choice-btn';
-    choice1.textContent = "Focus on worker education";
-    choicesContainer.appendChild(choice1);
-    
-    const choice2 = document.createElement('button');
-    choice2.className = 'choice-btn';
-    choice2.textContent = "Expand party press";
-    choicesContainer.appendChild(choice2);
-}
-
-// Initialize when page loads
-document.addEventListener('DOMContentLoaded', function() {
     // Connect the "Advance Time" button
     const nextTurnBtn = document.getElementById('next-turn-btn');
     if (nextTurnBtn) {
-        nextTurnBtn.addEventListener('click', advanceTime);
+        nextTurnBtn.addEventListener('click', function() {
+            advanceTime();
+            // Optionally load a new event after advancing
+            setTimeout(loadNextEvent, 300);
+        });
     }
     
     // Initialize the game
     initializeGame();
+    
+    // Setup tab switching (from your HTML)
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const tabName = this.dataset.tab;
+            
+            // Update active button
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Show selected tab
+            document.querySelectorAll('.tab-pane').forEach(pane => {
+                pane.classList.remove('active');
+            });
+            document.getElementById('tab-' + tabName).classList.add('active');
+        });
+    });
+    
+    // Setup map toggle button
+    const toggleMapBtn = document.getElementById('toggle-map-btn');
+    if (toggleMapBtn) {
+        toggleMapBtn.addEventListener('click', function() {
+            const eventContainer = document.getElementById('event-container');
+            const mapContainer = document.getElementById('map-container');
+            
+            if (eventContainer.style.display !== 'none') {
+                // Switch to map view
+                eventContainer.style.display = 'none';
+                mapContainer.style.display = 'block';
+                this.innerHTML = '<i class="fas fa-scroll"></i> Events';
+                this.title = 'Switch back to events view';
+            } else {
+                // Switch to event view
+                eventContainer.style.display = 'block';
+                mapContainer.style.display = 'none';
+                this.innerHTML = '<i class="fas fa-map"></i> Map';
+                this.title = 'Toggle map view';
+            }
+        });
+    }
 });
