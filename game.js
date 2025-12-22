@@ -29,9 +29,6 @@ function initializeGame() {
     
     // Load and display the initial event
     loadInitialEvent();
-    
-    // Check for initial events from YAML files (optional)
-    // checkEvents();
 }
 
 // Function to load and display your event
@@ -100,20 +97,35 @@ function selectChoice(choiceId) {
     // Update UI
     updateGameUI();
     
-    // Advance time and load next event
+    // Clear the event screen after choice
     setTimeout(() => {
-        loadNextEvent();
+        clearEventScreen();
     }, 500);
 }
+
+// Clear event screen (show empty/awaiting next event)
+function clearEventScreen() {
+    document.getElementById('event-title').textContent = "Awaiting Events";
+    document.getElementById('event-date').textContent = getDateDisplay();
     
-    const choice2 = document.createElement('button');
-    choice2.className = 'choice-btn';
-    choice2.textContent = "Expand party press";
-    choice2.onclick = function() {
-        alert("Party press expansion selected!");
-        advanceTime();
-    };
-    choicesDiv.appendChild(choice2);
+    const contentDiv = document.getElementById('event-content');
+    contentDiv.innerHTML = `
+        <p>Time has advanced to ${getDateDisplay()}.</p>
+        <p>Press "Advance Time" to continue or wait for the next event.</p>
+    `;
+    
+    const choicesDiv = document.getElementById('event-choices');
+    
+    // Clear choice buttons
+    const oldButtons = choicesDiv.querySelectorAll('.choice-btn');
+    oldButtons.forEach(btn => btn.remove());
+    
+    // Show placeholder again
+    const placeholder = document.querySelector('.choice-placeholder');
+    if (placeholder) {
+        placeholder.style.display = 'block';
+        placeholder.innerHTML = '<p><i>No decisions pending. Advance time to continue.</i></p>';
+    }
 }
 
 // Advance time by one month
@@ -126,6 +138,15 @@ function advanceTime() {
     }
     
     updateGameUI();
+    
+    // Check if there are any events for the new date
+    // For now, just update the message
+    const contentDiv = document.getElementById('event-content');
+    contentDiv.innerHTML = `
+        <p>Advanced to ${getDateDisplay()}.</p>
+        <p>No events scheduled for this period.</p>
+        <p>Continue advancing time or wait for events to trigger.</p>
+    `;
 }
 
 // Update all UI elements
@@ -159,11 +180,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Connect the "Advance Time" button
     const nextTurnBtn = document.getElementById('next-turn-btn');
     if (nextTurnBtn) {
-        nextTurnBtn.addEventListener('click', function() {
-            advanceTime();
-            // Optionally load a new event after advancing
-            setTimeout(loadNextEvent, 300);
-        });
+        nextTurnBtn.addEventListener('click', advanceTime);
     }
     
     // Initialize the game
