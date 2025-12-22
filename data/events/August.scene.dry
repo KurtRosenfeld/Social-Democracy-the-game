@@ -1,24 +1,20 @@
 title: The August Days
-subtitle: Welcome to the game bitch
+subtitle: Welcome to the game
 tags: event
 view-if: year = 1890 and month = 8
 max-visits: 1
 
-= Initial stuff
+---
 
 "Hello there!"
 
 "I hope this will work"
 
-- @thank
-- @celebrate
+- [We seek closer collaboration with friendly parties in the Reichstag.] @thank
+- [We host a few parades across the country.] @celebrate
 
 @thank
-on-arrival: zc_relation += 2; fvp_relation += 5; reformist_strength += 3; month =+1
+on-arrival: zc_relation += 2; fvp_relation += 5; reformist_strength += 3; month += 1
 
-"We seek closer collaboration with friendly parties in the Reichstag."
-
-@celebrate
-on-arrival: month =+1
-  
-"We host a few parades across the country."
+@celebrate  
+on-arrival: month += 1
