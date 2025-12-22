@@ -20,20 +20,43 @@ let gameState = {
 let events = [];
 let currentEvent = null;
 
-const EVENT_FOLDER = 'data/events/'; // Add this here, at the top
+const EVENT_FOLDER = 'data/events/';
 
 // Initialize game
-function initializeGame() {
+async function initializeGame() {  // MAKE IT ASYNC
     console.log("Initializing game...");
     
+    // Debug file loading
+    await debugFileLoading();
+    
     // Load all event files
-    loadAllEvents();
+    await loadAllEvents();
     
     // Update UI with initial state
     updateGameUI();
     
     // Load initial August event
     loadInitialEvent();
+}
+
+// Debug function to test file paths
+async function debugFileLoading() {
+    console.log("Testing file paths...");
+    
+    const testPaths = [
+        'data/events/september.dry',
+        'data/events/october.dry',
+        'events/september.dry'
+    ];
+    
+    for (const path of testPaths) {
+        try {
+            const response = await fetch(path);
+            console.log(`${path}: ${response.ok ? '✓ FOUND' : '✗ 404 Not Found'}`);
+        } catch (e) {
+            console.log(`${path}: ✗ ERROR - ${e.message}`);
+        }
+    }
 }
 
 // Load all event files
@@ -509,37 +532,3 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
-
-
-// Add this function and call it
-async function debugFileLoading() {
-    console.log("Testing file paths...");
-    
-    const testPaths = [
-        'data/events/september.dry',
-        'data/events/october.dry',
-        'events/september.dry'  // old path for comparison
-    ];
-    
-    for (const path of testPaths) {
-        try {
-            const response = await fetch(path);
-            console.log(`${path}: ${response.ok ? '✓ FOUND' : '✗ 404 Not Found'}`);
-        } catch (e) {
-            console.log(`${path}: ✗ ERROR - ${e.message}`);
-        }
-    }
-}
-
-// Call it in initializeGame
-async function initializeGame() {
-    console.log("Initializing game...");
-    
-    // Debug file loading
-    await debugFileLoading();
-    
-    // Load all event files
-    await loadAllEvents();
-    
-    // ... rest of your code
-}
