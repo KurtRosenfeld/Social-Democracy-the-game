@@ -13,4 +13,4 @@ max-visits: 1
 on-arrival: zc_relation += 2; fvp_relation += 5; reformist_strength += 3; month += 1
 
 @celebrate
-on-arrival: month += 1
+on-arrival: month += 1; seats += 90
