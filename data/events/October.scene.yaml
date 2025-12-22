@@ -1,0 +1,16 @@
+title: The October Days
+subtitle: I literally hate you
+tags: event
+view-if: year = 1890 and month = 10
+max-visits: 1
+---
+"Hello there!"
+"I hope this will work"
+- [We seek closer collaboration with friendly parties in the Reichstag.] @thank
+- [Do not think youre gettin outta hea] @celebrate
+---
+@thank
+on-arrival: month += 1
+
+@celebrate
+on-arrival: month += 1
