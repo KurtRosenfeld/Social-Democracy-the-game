@@ -17,111 +17,409 @@ let gameState = {
 };
 
 // Event data storage
-let events = {};
+let events = [];
 let currentEvent = null;
 
 // Initialize game
 function initializeGame() {
     console.log("Initializing game...");
     
+    // Load all event files
+    loadAllEvents();
+    
     // Update UI with initial state
     updateGameUI();
     
-    // Load and display the initial event
+    // Load initial August event
     loadInitialEvent();
 }
 
-// Function to load and display your event
+// Load all event files
+async function loadAllEvents() {
+    try {
+        // First, load the manual August event
+        events.push({
+            id: 'august-manual',
+            title: "The August Days",
+            subtitle: "Welcome to the game",
+            condition: "year = 1890 and month = 8",
+            maxVisits: 1,
+            content: ["Hello there!", "I hope this will work"],
+            choices: [
+                { 
+                    text: "We seek closer collaboration with friendly parties in the Reichstag.", 
+                    id: "thank",
+                    effects: { zc_relation: 2, fvp_relation: 5, reformist_strength: 3, month: 1 }
+                },
+                { 
+                    text: "We host a few parades across the country.", 
+                    id: "celebrate",
+                    effects: { month: 1 }
+                }
+            ]
+        });
+        
+        // Try to load September event (JSON format)
+        try {
+            const septResponse = await fetch('events/september.dry');
+            if (septResponse.ok) {
+                const septContent = await septResponse.text();
+                const septEvent = parseDryContent(septContent, 'september');
+                if (septEvent) {
+                    events.push(septEvent);
+                    console.log("Loaded September event");
+                }
+            }
+        } catch (e) {
+            console.warn("Could not load September event:", e);
+        }
+        
+        // Try to load October event (YAML format)
+        try {
+            const octResponse = await fetch('events/october.dry');
+            if (octResponse.ok) {
+                const octContent = await octResponse.text();
+                const octEvent = parseDryContent(octContent, 'october');
+                if (octEvent) {
+                    events.push(octEvent);
+                    console.log("Loaded October event");
+                }
+            }
+        } catch (e) {
+            console.warn("Could not load October event:", e);
+        }
+        
+        console.log("Total events loaded:", events.length);
+        
+    } catch (error) {
+        console.error("Error loading events:", error);
+    }
+}
+
+// Parse .dry content (handles both JSON and YAML formats)
+function parseDryContent(content, filename) {
+    content = content.trim();
+    
+    // Check if it's JSON format
+    if (content.startsWith('{')) {
+        try {
+            const jsonEvent = JSON.parse(content);
+            // Convert to standard format
+            return {
+                id: filename,
+                title: jsonEvent.title || "Untitled Event",
+                subtitle: jsonEvent.subtitle || "",
+                condition: `year = ${jsonEvent.conditions?.year || 1890} and month = ${jsonEvent.conditions?.month || 1}`,
+                maxVisits: jsonEvent.maxVisits || 1,
+                content: jsonEvent.content || ["No content"],
+                choices: (jsonEvent.choices || []).map(choice => ({
+                    text: choice.text || "Choice",
+                    id: choice.id || "choice",
+                    effects: choice.effects || {}
+                }))
+            };
+        } catch (e) {
+            console.error("Error parsing JSON event:", e);
+            return null;
+        }
+    }
+    // Otherwise, parse as YAML format
+    else {
+        return parseYamlDry(content, filename);
+    }
+}
+
+// Parse YAML-like .dry format
+function parseYamlDry(content, filename) {
+    const lines = content.split('\n');
+    const event = { 
+        id: filename,
+        title: "Untitled Event",
+        subtitle: "",
+        condition: "",
+        maxVisits: 1,
+        content: [],
+        choices: [],
+        choiceEffects: {}
+    };
+    
+    let inContentSection = false;
+    let inChoiceSection = false;
+    let currentChoiceId = '';
+    
+    for (let line of lines) {
+        line = line.trim();
+        
+        if (line.startsWith('title:')) {
+            event.title = line.substring(6).trim();
+        } else if (line.startsWith('subtitle:')) {
+            event.subtitle = line.substring(9).trim();
+        } else if (line.startsWith('view-if:')) {
+            event.condition = line.substring(8).trim();
+        } else if (line.startsWith('max-visits:')) {
+            event.maxVisits = parseInt(line.substring(11).trim()) || 1;
+        } else if (line === '---') {
+            if (!inContentSection) {
+                inContentSection = true;
+            } else if (!inChoiceSection) {
+                inChoiceSection = true;
+            }
+        } else if (line.startsWith('- [')) {
+            // Choice option
+            const match = line.match(/^- \[(.*?)\] @(\w+)/);
+            if (match) {
+                event.choices.push({
+                    text: match[1],
+                    id: match[2]
+                });
+            }
+        } else if (line.startsWith('@')) {
+            // Choice definition
+            currentChoiceId = line.substring(1).trim();
+            event.choiceEffects[currentChoiceId] = { onArrival: '' };
+        } else if (line.startsWith('on-arrival:')) {
+            // Choice effects
+            if (currentChoiceId && event.choiceEffects[currentChoiceId]) {
+                event.choiceEffects[currentChoiceId].onArrival = line.substring(11).trim();
+            }
+        } else if (line && inContentSection && !inChoiceSection && 
+                   !line.startsWith('@') && !line.startsWith('- [') && 
+                   line !== '---') {
+            // Content text (remove quotes if present)
+            let text = line;
+            if (text.startsWith('"') && text.endsWith('"')) {
+                text = text.substring(1, text.length - 1);
+            }
+            event.content.push(text);
+        }
+    }
+    
+    return event;
+}
+
+// Load and display initial August event
 function loadInitialEvent() {
-    // Replace placeholder content with your event
-    document.getElementById('event-title').textContent = "The August Days";
+    // Find August event
+    const augustEvent = events.find(event => {
+        return checkCondition(event.condition) && 
+               !gameState.visitedEvents.has(event.id);
+    });
+    
+    if (augustEvent) {
+        showEvent(augustEvent);
+        gameState.visitedEvents.add(augustEvent.id);
+    } else {
+        showNoEventScreen();
+    }
+}
+
+// Check condition string
+function checkCondition(condition) {
+    if (!condition) return true;
+    
+    const conditions = condition.split(' and ');
+    
+    for (let cond of conditions) {
+        const parts = cond.trim().split(/\s*=\s*/);
+        if (parts.length === 2) {
+            const variable = parts[0].trim();
+            const value = parseInt(parts[1].trim());
+            
+            if (variable === 'year' && value !== gameState.year) {
+                return false;
+            }
+            if (variable === 'month' && value !== gameState.month) {
+                return false;
+            }
+        }
+    }
+    
+    return true;
+}
+
+// Display event in UI
+function showEvent(event) {
+    currentEvent = event;
+    
+    // Update HTML elements
+    document.getElementById('event-title').textContent = event.title;
+    if (event.subtitle) {
+        document.getElementById('event-title').innerHTML = `${event.title}<br><small>${event.subtitle}</small>`;
+    }
     document.getElementById('event-date').textContent = getDateDisplay();
     
     // Update event content
     const contentDiv = document.getElementById('event-content');
-    contentDiv.innerHTML = `
-        <p><strong>"Hello there!"</strong></p>
-        <p><strong>"I hope this will work"</strong></p>
-    `;
+    contentDiv.innerHTML = '';
+    event.content.forEach(text => {
+        const p = document.createElement('p');
+        p.textContent = text;
+        contentDiv.appendChild(p);
+    });
     
-    // Hide the placeholder
-    const placeholder = document.querySelector('.choice-placeholder');
+    // Update choices
+    const choicesDiv = document.getElementById('event-choices');
+    const placeholder = choicesDiv.querySelector('.choice-placeholder');
+    
     if (placeholder) {
         placeholder.style.display = 'none';
     }
     
-    // Create choice buttons
-    const choicesDiv = document.getElementById('event-choices');
+    // Clear old choices
+    const oldChoices = choicesDiv.querySelectorAll('.choice-btn');
+    oldChoices.forEach(choice => choice.remove());
     
-    // Clear any existing choice buttons
-    const oldButtons = choicesDiv.querySelectorAll('.choice-btn');
-    oldButtons.forEach(btn => btn.remove());
-    
-    // Add first choice button
-    const choice1 = document.createElement('button');
-    choice1.className = 'choice-btn';
-    choice1.textContent = "We seek closer collaboration with friendly parties in the Reichstag.";
-    choice1.onclick = function() {
-        selectChoice('thank');
-    };
-    choicesDiv.appendChild(choice1);
-    
-    // Add second choice button
-    const choice2 = document.createElement('button');
-    choice2.className = 'choice-btn';
-    choice2.textContent = "We host a few parades across the country.";
-    choice2.onclick = function() {
-        selectChoice('celebrate');
-    };
-    choicesDiv.appendChild(choice2);
+    // Add new choices
+    if (event.choices && event.choices.length > 0) {
+        event.choices.forEach(choice => {
+            const button = document.createElement('button');
+            button.className = 'choice-btn';
+            button.textContent = choice.text;
+            button.dataset.choiceId = choice.id;
+            button.onclick = () => selectChoice(choice.id);
+            choicesDiv.appendChild(button);
+        });
+    } else {
+        // No choices? Add a default continue button
+        const button = document.createElement('button');
+        button.className = 'choice-btn';
+        button.textContent = "Continue";
+        button.onclick = () => selectChoice('continue');
+        choicesDiv.appendChild(button);
+    }
 }
 
 // Handle choice selection
 function selectChoice(choiceId) {
-    console.log("Choice selected:", choiceId);
-    
-    // Apply effects based on choice
-    if (choiceId === 'thank') {
-        // Apply thank choice effects
-        gameState.stats.zc_relation += 2;
-        gameState.stats.fvp_relation += 5;
-        gameState.stats.reformist_strength += 3;
-        gameState.month += 1;
-        console.log("Effects applied: +2 zc_relation, +5 fvp_relation, +3 reformist_strength, +1 month");
-    } else if (choiceId === 'celebrate') {
-        // Apply celebrate choice effects
-        gameState.month += 1;
-        console.log("Effects applied: +1 month");
+    if (!currentEvent) {
+        console.log("No current event");
+        advanceTime();
+        return;
     }
+    
+    console.log("Choice selected:", choiceId, "in event:", currentEvent.id);
+    
+    // Apply effects
+    applyChoiceEffects(currentEvent, choiceId);
     
     // Update UI
     updateGameUI();
     
-    // Clear the event screen after choice
+    // Clear screen and check for next event
     setTimeout(() => {
-        clearEventScreen();
-    }, 500);
+        checkAndShowEvent();
+    }, 300);
 }
 
-// Clear event screen (show empty/awaiting next event)
-function clearEventScreen() {
-    document.getElementById('event-title').textContent = "Awaiting Events";
-    document.getElementById('event-date').textContent = getDateDisplay();
+// Apply choice effects
+function applyChoiceEffects(event, choiceId) {
+    // Handle JSON format events (effects in choice object)
+    if (event.choices) {
+        const choice = event.choices.find(c => c.id === choiceId);
+        if (choice && choice.effects) {
+            Object.entries(choice.effects).forEach(([key, value]) => {
+                if (key === 'month') {
+                    gameState.month += value;
+                    if (gameState.month > 12) {
+                        gameState.year += Math.floor((gameState.month - 1) / 12);
+                        gameState.month = ((gameState.month - 1) % 12) + 1;
+                    }
+                } else if (key in gameState.stats) {
+                    gameState.stats[key] += value;
+                }
+            });
+        }
+    }
+    
+    // Handle YAML format events (effects in choiceEffects)
+    if (event.choiceEffects && event.choiceEffects[choiceId]) {
+        const effects = event.choiceEffects[choiceId].onArrival;
+        if (effects) {
+            applyEffectsString(effects);
+        }
+    }
+    
+    console.log("Game state after effects:", gameState);
+}
+
+// Apply effects string (for YAML format)
+function applyEffectsString(effects) {
+    const statements = effects.split(';');
+    
+    statements.forEach(statement => {
+        const trimmed = statement.trim();
+        if (!trimmed) return;
+        
+        const parts = trimmed.split(/\s*([+\-]?=)\s*/);
+        if (parts.length === 3) {
+            const variable = parts[0].trim();
+            const operator = parts[1].trim();
+            const value = parseInt(parts[2].trim());
+            
+            if (operator === '+=') {
+                if (variable in gameState.stats) {
+                    gameState.stats[variable] += value;
+                } else if (variable === 'month') {
+                    gameState.month += value;
+                    if (gameState.month > 12) {
+                        gameState.year += Math.floor((gameState.month - 1) / 12);
+                        gameState.month = ((gameState.month - 1) % 12) + 1;
+                    }
+                } else if (variable === 'year') {
+                    gameState.year += value;
+                }
+            }
+        }
+    });
+}
+
+// Check and show appropriate event for current date
+function checkAndShowEvent() {
+    // Find events that match current conditions and haven't been visited too many times
+    const matchingEvents = events.filter(event => {
+        // Check condition
+        if (!checkCondition(event.condition)) {
+            return false;
+        }
+        
+        // Check max visits
+        const visitCount = Array.from(gameState.visitedEvents).filter(id => id === event.id).length;
+        if (event.maxVisits && visitCount >= event.maxVisits) {
+            return false;
+        }
+        
+        return true;
+    });
+    
+    if (matchingEvents.length > 0) {
+        // Show the first matching event
+        showEvent(matchingEvents[0]);
+        gameState.visitedEvents.add(matchingEvents[0].id);
+    } else {
+        // No events for this date
+        showNoEventScreen();
+    }
+}
+
+// Show no event screen
+function showNoEventScreen() {
+    document.getElementById('event-title').textContent = getDateDisplay();
+    document.getElementById('event-date').textContent = "";
     
     const contentDiv = document.getElementById('event-content');
     contentDiv.innerHTML = `
-        <p>Time has advanced to ${getDateDisplay()}.</p>
-        <p>Press "Advance Time" to continue or wait for the next event.</p>
+        <p>No events are scheduled for this period.</p>
+        <p>Press "Advance Time" to continue to the next month.</p>
     `;
     
     const choicesDiv = document.getElementById('event-choices');
+    const placeholder = choicesDiv.querySelector('.choice-placeholder');
     
     // Clear choice buttons
     const oldButtons = choicesDiv.querySelectorAll('.choice-btn');
     oldButtons.forEach(btn => btn.remove());
     
-    // Show placeholder again
-    const placeholder = document.querySelector('.choice-placeholder');
+    // Show placeholder
     if (placeholder) {
         placeholder.style.display = 'block';
         placeholder.innerHTML = '<p><i>No decisions pending. Advance time to continue.</i></p>';
@@ -139,14 +437,8 @@ function advanceTime() {
     
     updateGameUI();
     
-    // Check if there are any events for the new date
-    // For now, just update the message
-    const contentDiv = document.getElementById('event-content');
-    contentDiv.innerHTML = `
-        <p>Advanced to ${getDateDisplay()}.</p>
-        <p>No events scheduled for this period.</p>
-        <p>Continue advancing time or wait for events to trigger.</p>
-    `;
+    // Check for events at the new date
+    checkAndShowEvent();
 }
 
 // Update all UI elements
@@ -186,16 +478,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize the game
     initializeGame();
     
-    // Setup tab switching (from your HTML)
+    // Setup tab switching
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const tabName = this.dataset.tab;
             
-            // Update active button
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             this.classList.add('active');
             
-            // Show selected tab
             document.querySelectorAll('.tab-pane').forEach(pane => {
                 pane.classList.remove('active');
             });
@@ -211,13 +501,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const mapContainer = document.getElementById('map-container');
             
             if (eventContainer.style.display !== 'none') {
-                // Switch to map view
                 eventContainer.style.display = 'none';
                 mapContainer.style.display = 'block';
                 this.innerHTML = '<i class="fas fa-scroll"></i> Events';
                 this.title = 'Switch back to events view';
             } else {
-                // Switch to event view
                 eventContainer.style.display = 'block';
                 mapContainer.style.display = 'none';
                 this.innerHTML = '<i class="fas fa-map"></i> Map';
