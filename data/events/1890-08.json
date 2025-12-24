@@ -14,3 +14,37 @@ on-arrival: zc_relation += 2; fvp_relation += 5; reformist_strength += 3; month 
 
 @celebrate
 on-arrival: month += 1; seats += 90
+
+{
+  "id": "august-1890",
+  "title": "The August Days",
+  "subtitle": "Welcome to the game",
+  "conditions": {
+    "year": 1890,
+    "month": 8
+  },
+  "maxVisits": 1,
+  "content": [
+    "Hello there",
+    "I hope this will work"
+  ],
+  "choices": [
+    {
+      "text": "We seek closer collaboration with friendly parties in the Reichstag.",
+      "id": "thank",
+      "effects": {
+        "zc_relation": 2,
+        "fvp_relation": 5,
+        "reformist_strength": 3,
+        "month": 1
+      }
+    },
+    {
+      "text": "We host a few parades across the country.",
+      "id": "celebrate",
+      "effects": {
+        "month": 1
+      }
+    }
+  ]
+}
