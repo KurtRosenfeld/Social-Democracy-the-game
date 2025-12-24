@@ -23,7 +23,7 @@ let currentEvent = null;
 const EVENT_FOLDER = 'data/events/';
 
 // Initialize game
-async function initializeGame() {  // MAKE IT ASYNC
+async function initializeGame() {
     console.log("Initializing game...");
     
     // Debug file loading
@@ -84,28 +84,8 @@ async function loadAllEvents() {
             ]
         });
         
-        // List of event files to load
-        const eventFiles = ['september.dry', 'october.dry'];
-        
-        // Load each event file
-        for (const filename of eventFiles) {
-            try {
-                const response = await fetch(`${EVENT_FOLDER}${filename}`);
-                if (response.ok) {
-                    const content = await response.text();
-                    const eventId = filename.replace('.dry', '');
-                    const event = parseDryContent(content, eventId);
-                    if (event) {
-                        events.push(event);
-                        console.log(`Loaded ${filename} as ${eventId}`);
-                    }
-                } else {
-                    console.warn(`File not found: ${EVENT_FOLDER}${filename}`);
-                }
-            } catch (e) {
-                console.warn(`Could not load ${filename}:`, e);
-            }
-        }
+        // Load events from manifest
+        await loadEventsWithManifest();
         
         console.log("Total events loaded:", events.length);
         
@@ -113,6 +93,29 @@ async function loadAllEvents() {
         console.error("Error loading events:", error);
     }
 }
+
+// Function to load events using manifest.json
+async function loadEventsWithManifest() {
+    try {
+        // Load manifest first
+        const manifestResponse = await fetch(`${EVENT_FOLDER}manifest.json`);
+        const manifest = await manifestResponse.json();
+        
+        // Load all events listed in manifest
+        for (const filename of manifest.events) {
+            const response = await fetch(`${EVENT_FOLDER}${filename}`);
+            const event = await response.json();
+            events.push(event);
+        }
+        
+    } catch (error) {
+        console.error("Error loading with manifest:", error);
+    }
+}
+
+// ... rest of your existing functions (parseDryContent, showEvent, etc.) ...
+// Keep all your other functions as they were
+        
 
 // Parse .dry content (handles both JSON and YAML formats)
 function parseDryContent(content, filename) {
