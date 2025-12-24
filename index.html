@@ -7,8 +7,7 @@
     <link rel="stylesheet" href="game.css">
     <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
-    <!-- REMOVED: Inline styles for year progress bar -->
+    <!-- REMOVED: js-yaml library (no longer needed) -->
 </head>
 <body>
     <!-- HEADER -->
@@ -18,7 +17,6 @@
             <p id="game-subtitle">SPD Political Simulator</p>
         </div>
         <div class="header-center">
-            <!-- CHANGED: Use existing CSS classes -->
             <div id="date-display">
                 <span id="current-date">August 1890</span>
                 <div id="date-progress">
@@ -33,7 +31,6 @@
             <button class="header-btn" onclick="alert('Load feature coming soon')">
                 <i class="fas fa-folder-open"></i> Load
             </button>
-            <!-- ADDED: Map toggle button -->
             <button class="header-btn" id="toggle-map-btn" title="Toggle map view">
                 <i class="fas fa-map"></i> Map
             </button>
@@ -63,11 +60,7 @@
                     <span class="stat-value" id="stat-budget">27</span>
                 </div>
             </div>
-
-            <!-- CHANGED: Removed faction display from here -->
-            <!-- It will now appear in the Party tab instead -->
             
-            <!-- ADDED: Timeline section -->
             <div class="stat-box">
                 <h3><i class="fas fa-history"></i> Timeline</h3>
                 <div class="timeline">
@@ -98,17 +91,16 @@
                     <p>Add your narrative text here.</p>
                 </div>
 
-       <div id="event-choices">
-    <h3>Your Decision:</h3>
-    <!-- Choices will be inserted here by JavaScript -->
-    <div class="choice-placeholder" id="choice-placeholder">
-        <p><i>Decision buttons will appear here</i></p>
-    </div>
-    <!-- This is where choice buttons will appear -->
-    <div id="choices-container"></div>
-</div>  <!-- This closes the event-container -->
+                <div id="event-choices">
+                    <h3>Your Decision:</h3>
+                    <div class="choice-placeholder" id="choice-placeholder">
+                        <p><i>Decision buttons will appear here</i></p>
+                    </div>
+                    <div id="choices-container"></div>
+                </div>
+            </div>
             
-            <!-- ADDED: Map container (hidden by default) -->
+            <!-- Map container (hidden by default) -->
             <div id="map-container" style="display: none; height: 100%;">
                 <div class="map-placeholder" style="text-align: center; padding: 60px 20px; color: #888;">
                     <i class="fas fa-map-marked-alt fa-3x" style="margin-bottom: 20px; opacity: 0.3;"></i>
@@ -123,7 +115,6 @@
 
         <!-- RIGHT SIDEBAR: Tabs Navigation -->
         <aside id="sidebar-right">
-            <!-- Tab Navigation -->
             <nav id="tab-nav">
                 <button class="tab-btn active" data-tab="main">
                     <i class="fas fa-home"></i> Main
@@ -140,13 +131,11 @@
                 <button class="tab-btn" data-tab="politics">
                     <i class="fas fa-handshake"></i> Politics
                 </button>
-                <!-- ADDED: Map tab -->
                 <button class="tab-btn" data-tab="map">
                     <i class="fas fa-map"></i> Map
                 </button>
             </nav>
 
-            <!-- Tab Content Area -->
             <div id="tab-content">
                 <div class="tab-pane active" id="tab-main">
                     <h3>Main Game Controls</h3>
@@ -165,7 +154,6 @@
 
                 <div class="tab-pane" id="tab-party">
                     <h3>Party Management</h3>
-                    <!-- ADDED: Faction display moved here -->
                     <div class="faction-display" style="margin: 15px 0;">
                         <div style="display: flex; height: 30px; border-radius: 4px; overflow: hidden; margin-bottom: 10px;">
                             <div class="faction-radical" style="width: 45%; background: #e63946; color: white; display: flex; align-items: center; padding-left: 10px; font-weight: bold;">
@@ -201,13 +189,12 @@
                     </div>
                 </div>
                 
-                <!-- ADDED: Map tab content -->
                 <div class="tab-pane" id="tab-map">
                     <h3><i class="fas fa-map"></i> Map Controls</h3>
                     <p>Control map display and load JSON map data.</p>
                     
                     <div class="map-controls" style="margin: 15px 0;">
-                        <button class="map-control-btn" onclick="toggleMapView()" style="width: 100%; margin-bottom: 10px;">
+                        <button class="map-control-btn" id="inline-map-toggle" style="width: 100%; margin-bottom: 10px;">
                             <i class="fas fa-eye"></i> Toggle Map View
                         </button>
                         
@@ -244,80 +231,31 @@
     <!-- GAME JAVASCRIPT -->
     <script src="game.js"></script>
     
-    <!-- Initialize Game -->
+    <!-- Minimal inline script - just connect the map button in tab -->
     <script>
+        // Connect the map toggle button in the Map tab
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize the game
-            if (window.game) {
-                window.game.initialize();
-            }
-            
-            // Setup tab switching
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const tabName = this.dataset.tab;
-                    
-                    // Update active button
-                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    // Show selected tab
-                    document.querySelectorAll('.tab-pane').forEach(pane => {
-                        pane.classList.remove('active');
-                    });
-                    document.getElementById('tab-' + tabName).classList.add('active');
+            const inlineMapBtn = document.getElementById('inline-map-toggle');
+            if (inlineMapBtn) {
+                inlineMapBtn.addEventListener('click', function() {
+                    // Trigger the map toggle from game.js
+                    const mapToggleBtn = document.getElementById('toggle-map-btn');
+                    if (mapToggleBtn) {
+                        mapToggleBtn.click();
+                    }
                 });
-            });
+            }
             
-            // ADDED: Map toggle button functionality
-            document.getElementById('toggle-map-btn').addEventListener('click', toggleMapView);
+            // Update progress bar helper function (called from game.js)
+            window.updateYearProgress = function(year) {
+                // 1890-1920 = 30 years
+                const progress = ((year - 1890) / 30) * 100;
+                const progressBar = document.getElementById('date-progress-bar');
+                if (progressBar) {
+                    progressBar.style.width = Math.min(Math.max(progress, 0), 100) + '%';
+                }
+            };
         });
-        
-        // ADDED: Map toggle function
-        function toggleMapView() {
-            const eventContainer = document.getElementById('event-container');
-            const mapContainer = document.getElementById('map-container');
-            const mapBtn = document.getElementById('toggle-map-btn');
-            
-            if (eventContainer.style.display !== 'none') {
-                // Switch to map view
-                eventContainer.style.display = 'none';
-                mapContainer.style.display = 'block';
-                mapBtn.innerHTML = '<i class="fas fa-scroll"></i> Events';
-                mapBtn.title = 'Switch back to events view';
-            } else {
-                // Switch to event view
-                eventContainer.style.display = 'block';
-                mapContainer.style.display = 'none';
-                mapBtn.innerHTML = '<i class="fas fa-map"></i> Map';
-                mapBtn.title = 'Toggle map view';
-            }
-        }
-        
-        // CHANGED: Update date progress bar function
-        function updateDateProgress(month) {
-            // month is 1-12
-            const progress = ((month - 1) / 12) * 100;
-            const progressBar = document.getElementById('date-progress-bar');
-            if (progressBar) {
-                progressBar.style.width = Math.min(Math.max(progress, 0), 100) + '%';
-            }
-        }
-        
-        // CHANGED: Update year progress function
-        function updateYearProgress(year) {
-            // 1890-1920 = 30 years
-            const progress = ((year - 1890) / 30) * 100;
-            const progressBar = document.getElementById('date-progress-bar');
-            if (progressBar) {
-                // Update progress bar width (still using date-progress-bar)
-                progressBar.style.width = Math.min(Math.max(progress, 0), 100) + '%';
-            }
-        }
-        
-        // Example: Call these when time advances
-        // updateDateProgress(3); // For month-based progress
-        // updateYearProgress(1895); // For year-based progress
     </script>
 </body>
 </html>
