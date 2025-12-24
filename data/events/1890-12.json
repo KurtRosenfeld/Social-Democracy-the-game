@@ -1,0 +1,33 @@
+{
+  "id": "december-1890",
+  "title": "tobeadded",
+  "subtitle": "ho",
+  "conditions": {
+    "year": 1890,
+    "month": 12
+  },
+  "maxVisits": 1,
+  "content": [
+    "Let it be",
+    "Finally after ...to be added... Now it is on us to decide what to do next"
+  ],
+  "choices": [
+    {
+      "text": "We seek closer collaboration with friendly parties in the Reichstag.",
+      "id": "thank",
+      "effects": {
+        "zc_relation": 2,
+        "fvp_relation": 5,
+        "reformist_strength": 99,
+        "month": 1
+      }
+    },
+    {
+      "text": "We host a few parades across the country.",
+      "id": "celebrate",
+      "effects": {
+        "month": 1
+      }
+    }
+  ]
+}
