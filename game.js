@@ -26,9 +26,6 @@ const EVENT_FOLDER = 'data/events/';
 async function initializeGame() {
     console.log("Initializing game...");
     
-    // Debug file loading
-    await debugFileLoading();
-    
     // Load all event files
     await loadAllEvents();
     
@@ -39,26 +36,6 @@ async function initializeGame() {
     loadInitialEvent();
 }
 
-// Debug function to test file paths
-async function debugFileLoading() {
-    console.log("Testing file paths...");
-    
-    const testPaths = [
-        'data/events/september.dry',
-        'data/events/october.dry',
-        'events/september.dry'
-    ];
-    
-    for (const path of testPaths) {
-        try {
-            const response = await fetch(path);
-            console.log(`${path}: ${response.ok ? '✓ FOUND' : '✗ 404 Not Found'}`);
-        } catch (e) {
-            console.log(`${path}: ✗ ERROR - ${e.message}`);
-        }
-    }
-}
-
 // Load all event files
 async function loadAllEvents() {
     try {
@@ -67,7 +44,7 @@ async function loadAllEvents() {
             id: 'august-manual',
             title: "The August Days",
             subtitle: "Welcome to the game",
-            condition: "year = 1890 and month = 8",
+            conditions: { year: 1890, month: 8 }, // Changed to object format
             maxVisits: 1,
             content: ["Hello there!", "I hope this will work"],
             choices: [
@@ -103,143 +80,43 @@ async function loadEventsWithManifest() {
         
         // Load all events listed in manifest
         for (const filename of manifest.events) {
-            const response = await fetch(`${EVENT_FOLDER}${filename}`);
-            const event = await response.json();
-            events.push(event);
+            try {
+                const response = await fetch(`${EVENT_FOLDER}${filename}`);
+                if (!response.ok) {
+                    console.warn(`File not found: ${filename}`);
+                    continue;
+                }
+                const event = await response.json();
+                events.push(event);
+                console.log(`✓ Loaded ${filename}`);
+            } catch (error) {
+                console.error(`Error loading ${filename}:`, error);
+            }
         }
         
     } catch (error) {
-        console.error("Error loading with manifest:", error);
+        console.error("Error loading manifest:", error);
     }
 }
 
-// ... rest of your existing functions (parseDryContent, showEvent, etc.) ...
-// Keep all your other functions as they were
-        
-
-// Parse .dry content (handles both JSON and YAML formats)
-function parseDryContent(content, filename) {
-    content = content.trim();
-    
-    // Check if it's JSON format
-    if (content.startsWith('{')) {
-        try {
-            const jsonEvent = JSON.parse(content);
-            // Convert to standard format
-            return {
-                id: filename,
-                title: jsonEvent.title || "Untitled Event",
-                subtitle: jsonEvent.subtitle || "",
-                condition: `year = ${jsonEvent.conditions?.year || 1890} and month = ${jsonEvent.conditions?.month || 1}`,
-                maxVisits: jsonEvent.maxVisits || 1,
-                content: jsonEvent.content || ["No content"],
-                choices: (jsonEvent.choices || []).map(choice => ({
-                    text: choice.text || "Choice",
-                    id: choice.id || "choice",
-                    effects: choice.effects || {}
-                }))
-            };
-        } catch (e) {
-            console.error("Error parsing JSON event:", e);
-            return null;
+// Check if event conditions are met
+function checkCondition(event) {
+    // Handle object-based conditions (new JSON format)
+    if (event.conditions) {
+        const cond = event.conditions;
+        if (cond.year !== undefined && cond.year !== gameState.year) {
+            return false;
         }
-    }
-    // Otherwise, parse as YAML format
-    else {
-        return parseYamlDry(content, filename);
-    }
-}
-
-// Parse YAML-like .dry format
-function parseYamlDry(content, filename) {
-    const lines = content.split('\n');
-    const event = { 
-        id: filename,
-        title: "Untitled Event",
-        subtitle: "",
-        condition: "",
-        maxVisits: 1,
-        content: [],
-        choices: [],
-        choiceEffects: {}
-    };
-    
-    let inContentSection = false;
-    let inChoiceSection = false;
-    let currentChoiceId = '';
-    
-    for (let line of lines) {
-        line = line.trim();
-        
-        if (line.startsWith('title:')) {
-            event.title = line.substring(6).trim();
-        } else if (line.startsWith('subtitle:')) {
-            event.subtitle = line.substring(9).trim();
-        } else if (line.startsWith('view-if:')) {
-            event.condition = line.substring(8).trim();
-        } else if (line.startsWith('max-visits:')) {
-            event.maxVisits = parseInt(line.substring(11).trim()) || 1;
-        } else if (line === '---') {
-            if (!inContentSection) {
-                inContentSection = true;
-            } else if (!inChoiceSection) {
-                inChoiceSection = true;
-            }
-        } else if (line.startsWith('- [')) {
-            // Choice option
-            const match = line.match(/^- \[(.*?)\] @(\w+)/);
-            if (match) {
-                event.choices.push({
-                    text: match[1],
-                    id: match[2]
-                });
-            }
-        } else if (line.startsWith('@')) {
-            // Choice definition
-            currentChoiceId = line.substring(1).trim();
-            event.choiceEffects[currentChoiceId] = { onArrival: '' };
-        } else if (line.startsWith('on-arrival:')) {
-            // Choice effects
-            if (currentChoiceId && event.choiceEffects[currentChoiceId]) {
-                event.choiceEffects[currentChoiceId].onArrival = line.substring(11).trim();
-            }
-        } else if (line && inContentSection && !inChoiceSection && 
-                   !line.startsWith('@') && !line.startsWith('- [') && 
-                   line !== '---') {
-            // Content text (remove quotes if present)
-            let text = line;
-            if (text.startsWith('"') && text.endsWith('"')) {
-                text = text.substring(1, text.length - 1);
-            }
-            event.content.push(text);
+        if (cond.month !== undefined && cond.month !== gameState.month) {
+            return false;
         }
+        return true;
     }
     
-    return event;
-}
-
-// Load and display initial August event
-function loadInitialEvent() {
-    // Find August event
-    const augustEvent = events.find(event => {
-        return checkCondition(event.condition) && 
-               !gameState.visitedEvents.has(event.id);
-    });
+    // Handle string-based conditions (old format - for backward compatibility)
+    if (!event.condition) return true;
     
-    if (augustEvent) {
-        showEvent(augustEvent);
-        gameState.visitedEvents.add(augustEvent.id);
-    } else {
-        showNoEventScreen();
-    }
-}
-
-// Check condition string
-function checkCondition(condition) {
-    if (!condition) return true;
-    
-    const conditions = condition.split(' and ');
-    
+    const conditions = event.condition.split(' and ');
     for (let cond of conditions) {
         const parts = cond.trim().split(/\s*=\s*/);
         if (parts.length === 2) {
@@ -254,8 +131,30 @@ function checkCondition(condition) {
             }
         }
     }
-    
     return true;
+}
+
+// Load and display initial August event
+function loadInitialEvent() {
+    console.log("Looking for August event...");
+    console.log("Current events loaded:", events);
+    console.log("Current game state:", gameState);
+    
+    const augustEvent = events.find(event => {
+        const conditionMet = checkCondition(event);
+        const notVisited = !gameState.visitedEvents.has(event.id);
+        console.log(`Event ${event.id}: condition=${conditionMet}, visited=${!notVisited}`);
+        return conditionMet && notVisited;
+    });
+    
+    if (augustEvent) {
+        console.log("Found event:", augustEvent.title);
+        showEvent(augustEvent);
+        gameState.visitedEvents.add(augustEvent.id);
+    } else {
+        console.log("No event found!");
+        showNoEventScreen();
+    }
 }
 
 // Display event in UI
@@ -334,64 +233,26 @@ function selectChoice(choiceId) {
 
 // Apply choice effects
 function applyChoiceEffects(event, choiceId) {
-    // Handle JSON format events (effects in choice object)
-    if (event.choices) {
-        const choice = event.choices.find(c => c.id === choiceId);
-        if (choice && choice.effects) {
-            Object.entries(choice.effects).forEach(([key, value]) => {
-                if (key === 'month') {
-                    gameState.month += value;
-                    if (gameState.month > 12) {
-                        gameState.year += Math.floor((gameState.month - 1) / 12);
-                        gameState.month = ((gameState.month - 1) % 12) + 1;
-                    }
-                } else if (key in gameState.stats) {
-                    gameState.stats[key] += value;
-                }
-            });
-        }
-    }
+    // Find the selected choice
+    const choice = event.choices?.find(c => c.id === choiceId);
     
-    // Handle YAML format events (effects in choiceEffects)
-    if (event.choiceEffects && event.choiceEffects[choiceId]) {
-        const effects = event.choiceEffects[choiceId].onArrival;
-        if (effects) {
-            applyEffectsString(effects);
-        }
+    if (choice && choice.effects) {
+        Object.entries(choice.effects).forEach(([key, value]) => {
+            if (key === 'month') {
+                // Advance time
+                gameState.month += value;
+                if (gameState.month > 12) {
+                    gameState.year += Math.floor((gameState.month - 1) / 12);
+                    gameState.month = ((gameState.month - 1) % 12) + 1;
+                }
+            } else if (key in gameState.stats) {
+                // Update stats
+                gameState.stats[key] = (gameState.stats[key] || 0) + value;
+            }
+        });
     }
     
     console.log("Game state after effects:", gameState);
-}
-
-// Apply effects string (for YAML format)
-function applyEffectsString(effects) {
-    const statements = effects.split(';');
-    
-    statements.forEach(statement => {
-        const trimmed = statement.trim();
-        if (!trimmed) return;
-        
-        const parts = trimmed.split(/\s*([+\-]?=)\s*/);
-        if (parts.length === 3) {
-            const variable = parts[0].trim();
-            const operator = parts[1].trim();
-            const value = parseInt(parts[2].trim());
-            
-            if (operator === '+=') {
-                if (variable in gameState.stats) {
-                    gameState.stats[variable] += value;
-                } else if (variable === 'month') {
-                    gameState.month += value;
-                    if (gameState.month > 12) {
-                        gameState.year += Math.floor((gameState.month - 1) / 12);
-                        gameState.month = ((gameState.month - 1) % 12) + 1;
-                    }
-                } else if (variable === 'year') {
-                    gameState.year += value;
-                }
-            }
-        }
-    });
 }
 
 // Check and show appropriate event for current date
@@ -399,7 +260,7 @@ function checkAndShowEvent() {
     // Find events that match current conditions and haven't been visited too many times
     const matchingEvents = events.filter(event => {
         // Check condition
-        if (!checkCondition(event.condition)) {
+        if (!checkCondition(event)) {
             return false;
         }
         
@@ -497,7 +358,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Initialize the game
-    initializeGame();
+    initializeGame().catch(error => {
+        console.error("Failed to initialize game:", error);
+        document.getElementById('event-title').textContent = "Error";
+        document.getElementById('event-content').innerHTML = 
+            `<p>Failed to load game. Check console for details.</p>`;
+    });
     
     // Setup tab switching
     document.querySelectorAll('.tab-btn').forEach(btn => {
