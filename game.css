@@ -356,3 +356,49 @@ body {
         width: 100%;
     }
 }
+
+/* Choice button styling */
+.choice-btn {
+    display: block;
+    width: 100%;
+    margin: 10px 0;
+    padding: 15px;
+    background: linear-gradient(135deg, #2c3e50, #34495e);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 1rem;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.choice-btn:hover {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.choice-btn:active {
+    transform: translateY(0);
+}
+
+/* Hide placeholder when choices exist */
+#choices-container:not(:empty) + .choice-placeholder {
+    display: none;
+}
+
+/* Style the event container */
+#event-content {
+    line-height: 1.6;
+    margin: 20px 0;
+}
+
+#event-content p {
+    margin-bottom: 15px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 5px;
+}
