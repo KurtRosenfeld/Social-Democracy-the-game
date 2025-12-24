@@ -1,10 +1,12 @@
-// game.js - Core game engine
+// Enhanced game.js - Complete working version
 
-// Game state
 let gameState = {
     year: 1890,
     month: 8,
     visitedEvents: new Set(),
+    choicesMade: {},
+    queuedEvents: [],
+    newMonth: false,
     stats: {
         members: 100000,
         seats: 35,
@@ -16,10 +18,9 @@ let gameState = {
     }
 };
 
-// Event data storage
 let events = [];
 let currentEvent = null;
-
+let eventsShownThisMonth = new Set();
 const EVENT_FOLDER = 'data/events/';
 
 // Initialize game
@@ -44,7 +45,7 @@ async function loadAllEvents() {
             id: 'august-manual',
             title: "The August Days",
             subtitle: "Welcome to the game",
-            conditions: { year: 1890, month: 8 }, // Changed to object format
+            conditions: { year: 1890, month: 8 },
             maxVisits: 1,
             content: ["Hello there!", "I hope this will work"],
             choices: [
@@ -99,38 +100,69 @@ async function loadEventsWithManifest() {
     }
 }
 
-// Check if event conditions are met
+// Enhanced condition checking
 function checkCondition(event) {
-    // Handle object-based conditions (new JSON format)
-    if (event.conditions) {
-        const cond = event.conditions;
-        if (cond.year !== undefined && cond.year !== gameState.year) {
-            return false;
-        }
-        if (cond.month !== undefined && cond.month !== gameState.month) {
-            return false;
-        }
-        return true;
+    if (!event.conditions) return true;
+    
+    if (Array.isArray(event.conditions)) {
+        return evaluateConditionsArray(event.conditions);
     }
     
-    // Handle string-based conditions (old format - for backward compatibility)
-    if (!event.condition) return true;
-    
-    const conditions = event.condition.split(' and ');
-    for (let cond of conditions) {
-        const parts = cond.trim().split(/\s*=\s*/);
-        if (parts.length === 2) {
-            const variable = parts[0].trim();
-            const value = parseInt(parts[1].trim());
-            
-            if (variable === 'year' && value !== gameState.year) {
-                return false;
-            }
-            if (variable === 'month' && value !== gameState.month) {
-                return false;
-            }
+    return evaluateCondition(event.conditions);
+}
+
+function evaluateConditionsArray(conditions) {
+    for (const condition of conditions) {
+        if (!evaluateCondition(condition)) {
+            return false;
         }
     }
+    return true;
+}
+
+function evaluateCondition(condition) {
+    // Date conditions
+    if (condition.year !== undefined && condition.year !== gameState.year) {
+        return false;
+    }
+    if (condition.month !== undefined && condition.month !== gameState.month) {
+        return false;
+    }
+    
+    // Stat conditions
+    if (condition.minMembers && gameState.stats.members < condition.minMembers) {
+        return false;
+    }
+    if (condition.maxMembers && gameState.stats.members > condition.maxMembers) {
+        return false;
+    }
+    
+    // Relation conditions
+    if (condition.minZC && gameState.stats.zc_relation < condition.minZC) {
+        return false;
+    }
+    
+    // Random chance
+    if (condition.chance && Math.random() > condition.chance) {
+        return false;
+    }
+    
+    // Previous event requirement
+    if (condition.requiresEvent && !gameState.visitedEvents.has(condition.requiresEvent)) {
+        return false;
+    }
+    
+    // Previous choice requirement
+    if (condition.requiresChoice) {
+        const choiceMade = gameState.choicesMade[condition.requiresChoice.eventId] === condition.requiresChoice.choiceId;
+        if (!choiceMade) return false;
+    }
+    
+    // NOT conditions (cannot have happened)
+    if (condition.notEvent && gameState.visitedEvents.has(condition.notEvent)) {
+        return false;
+    }
+    
     return true;
 }
 
@@ -151,8 +183,52 @@ function loadInitialEvent() {
         console.log("Found event:", augustEvent.title);
         showEvent(augustEvent);
         gameState.visitedEvents.add(augustEvent.id);
+        eventsShownThisMonth.add(augustEvent.id);
     } else {
         console.log("No event found!");
+        showNoEventScreen();
+    }
+}
+
+// Enhanced event checking with queuing
+function checkAndShowEvent() {
+    // Reset monthly tracking
+    if (gameState.newMonth) {
+        eventsShownThisMonth.clear();
+        gameState.newMonth = false;
+    }
+    
+    const matchingEvents = events.filter(event => {
+        // Skip if shown this month (unless repeatable)
+        if (eventsShownThisMonth.has(event.id) && !event.repeatable) {
+            return false;
+        }
+        
+        // Check conditions
+        if (!checkCondition(event)) {
+            return false;
+        }
+        
+        // Check max visits
+        const visitCount = Array.from(gameState.visitedEvents).filter(id => id === event.id).length;
+        if (event.maxVisits && visitCount >= event.maxVisits) {
+            return false;
+        }
+        
+        return true;
+    });
+    
+    if (matchingEvents.length > 0) {
+        const eventToShow = matchingEvents[0];
+        showEvent(eventToShow);
+        gameState.visitedEvents.add(eventToShow.id);
+        eventsShownThisMonth.add(eventToShow.id);
+        
+        // Queue remaining events
+        if (matchingEvents.length > 1) {
+            gameState.queuedEvents = matchingEvents.slice(1);
+        }
+    } else {
         showNoEventScreen();
     }
 }
@@ -219,15 +295,25 @@ function selectChoice(choiceId) {
     
     console.log("Choice selected:", choiceId, "in event:", currentEvent.id);
     
+    // Track choice
+    gameState.choicesMade[currentEvent.id] = choiceId;
+    
     // Apply effects
     applyChoiceEffects(currentEvent, choiceId);
     
     // Update UI
     updateGameUI();
     
-    // Clear screen and check for next event
+    // Check for queued events or next event
     setTimeout(() => {
-        checkAndShowEvent();
+        if (gameState.queuedEvents && gameState.queuedEvents.length > 0) {
+            const nextEvent = gameState.queuedEvents.shift();
+            showEvent(nextEvent);
+            gameState.visitedEvents.add(nextEvent.id);
+            eventsShownThisMonth.add(nextEvent.id);
+        } else {
+            checkAndShowEvent();
+        }
     }, 300);
 }
 
@@ -255,34 +341,6 @@ function applyChoiceEffects(event, choiceId) {
     console.log("Game state after effects:", gameState);
 }
 
-// Check and show appropriate event for current date
-function checkAndShowEvent() {
-    // Find events that match current conditions and haven't been visited too many times
-    const matchingEvents = events.filter(event => {
-        // Check condition
-        if (!checkCondition(event)) {
-            return false;
-        }
-        
-        // Check max visits
-        const visitCount = Array.from(gameState.visitedEvents).filter(id => id === event.id).length;
-        if (event.maxVisits && visitCount >= event.maxVisits) {
-            return false;
-        }
-        
-        return true;
-    });
-    
-    if (matchingEvents.length > 0) {
-        // Show the first matching event
-        showEvent(matchingEvents[0]);
-        gameState.visitedEvents.add(matchingEvents[0].id);
-    } else {
-        // No events for this date
-        showNoEventScreen();
-    }
-}
-
 // Show no event screen
 function showNoEventScreen() {
     document.getElementById('event-title').textContent = getDateDisplay();
@@ -308,9 +366,10 @@ function showNoEventScreen() {
     }
 }
 
-// Advance time by one month
+// Modified advanceTime to mark new month
 function advanceTime() {
     gameState.month += 1;
+    gameState.newMonth = true; // Mark that we're starting a new month
     
     if (gameState.month > 12) {
         gameState.month = 1;
