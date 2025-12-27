@@ -1,0 +1,31 @@
+{
+  "id": "january-1891-1",
+  "title": "Option 1",
+  "subtitle": "please work",
+  "conditions": {
+    "year": 1891,
+    "month": 1,
+    "zc_relation": 5
+  },
+  "maxVisits": 1,
+  "content": [
+  "Die Gedanken sind frei"
+  ],
+  "choices": [
+    {
+      "text": "Fuck off!.",
+      "id": "thank",
+      "effects": {
+        "zc_relation": 2,
+        "month": 1
+      }
+    },
+    {
+      "text": "We host a few parades across the country.",
+      "id": "celebrate",
+      "effects": {
+        "month": 1
+      }
+    }
+  ]
+}
