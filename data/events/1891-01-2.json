@@ -1,0 +1,31 @@
+{
+  "id": "january-1891-2",
+  "title": "Option 2",
+  "subtitle": "please wooork",
+  "conditions": {
+    "year": 1891,
+    "month": 1,
+    "zc_relation": 90
+  },
+  "maxVisits": 1,
+  "content": [
+  "Huh"
+  ],
+  "choices": [
+    {
+      "text": "BITCH IT UP.",
+      "id": "thank",
+      "effects": {
+        "zc_relation": 2,
+        "month": 1
+      }
+    },
+    {
+      "text": "Dont BITCH IT UP",
+      "id": "celebrate",
+      "effects": {
+        "month": 1
+      }
+    }
+  ]
+}
