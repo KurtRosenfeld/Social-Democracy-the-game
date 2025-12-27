@@ -46,10 +46,11 @@ async function loadAllEvents() {
             subtitle: "Welcome to the game",
             conditions: { year: 1890, month: 8 }, // Changed to object format
             maxVisits: 1,
-            content: ["Hello there!", "I hope this will work"],
+            content: ["Hello there! I hope this will work"],
             choices: [
                 { 
                     text: "We seek closer collaboration with friendly parties in the Reichstag.", 
+                    subtitle: "tis is a stupid idea",
                     id: "thank",
                     effects: { zc_relation: 2, fvp_relation: 5, reformist_strength: 3, month: 1 }
                 },
