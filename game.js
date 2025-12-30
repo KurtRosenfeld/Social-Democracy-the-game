@@ -1,5 +1,8 @@
 // game.js - Core game engine
 
+// Map Manager - imported but not initialized yet
+let mapManager = null;
+
 // Game state
 let gameState = {
     year: 1890,
@@ -13,7 +16,15 @@ let gameState = {
         zc_relation: 0,
         fvp_relation: 0,
         reformist_strength: 0
-    }
+    },
+    variables: {} // Added for future use
+};
+
+// Simplified map state
+let mapState = {
+    initialized: false,
+    // We'll store which countries are active based on game variables
+    activeCountries: new Set(['GER1', 'FRA1', 'UK', 'AUHUN', 'RUS1', 'IT1', 'MORC']) // 1890 default
 };
 
 // Event data storage
@@ -29,8 +40,14 @@ async function initializeGame() {
     // Load all event files
     await loadAllEvents();
     
+    // DON'T initialize map yet - wait for user to click map button
+    // This keeps loading fast
+    
     // Update UI with initial state
     updateGameUI();
+    
+    // Update map tab
+    updateMapTab();
     
     // Load initial August event
     loadInitialEvent();
@@ -348,6 +365,149 @@ function getDateDisplay() {
     return `${months[gameState.month - 1]} ${gameState.year}`;
 }
 
+// Initialize map (minimal)
+async function initializeMap() {
+    try {
+        // Only load map if user clicks map button
+        const mapModule = await import('./mapfunctions/map-init.js');
+        mapManager = mapModule.default;
+        
+        // Initialize but don't apply any logic
+        const success = await mapManager.initialize('europe-map');
+        
+        if (success) {
+            console.log('Map loaded for display only');
+            mapState.initialized = true;
+            
+            // Just set up basic hover/click
+            setupBasicMapListeners();
+            
+            // Apply any initial state from game variables
+            applyMapFromGameState();
+        }
+    } catch (error) {
+        console.error('Could not load map:', error);
+    }
+}
+
+function setupBasicMapListeners() {
+    if (!mapManager) return;
+    
+    // Simple click to show country name
+    window.addEventListener('provinceSelected', (event) => {
+        const { provinceId, ownerKey } = event.detail;
+        const stats = mapManager.getOwnerStats();
+        const countryName = stats[ownerKey]?.name || ownerKey;
+        
+        // Just show a simple alert or update a small info box
+        showSimpleCountryInfo(countryName, ownerKey);
+    });
+}
+
+function showSimpleCountryInfo(countryName, countryCode) {
+    // Simple info display - not a major game feature
+    const infoBox = document.getElementById('map-info-box') || createSimpleInfoBox();
+    
+    infoBox.innerHTML = `
+        <h4>${countryName}</h4>
+        <p>Click "Advance Time" to progress the game.</p>
+        <p><small>Country code: ${countryCode}</small></p>
+    `;
+    infoBox.style.display = 'block';
+}
+
+function createSimpleInfoBox() {
+    const box = document.createElement('div');
+    box.id = 'map-info-box';
+    box.style.cssText = `
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        z-index: 1000;
+        max-width: 250px;
+        display: none;
+    `;
+    document.getElementById('map-container').appendChild(box);
+    return box;
+}
+
+// Called when game state changes (from events) - optional
+function updateMapFromGameVariables() {
+    if (!mapManager || !mapState.initialized) return;
+    
+    // Example: If event sets "german_war_loss" variable, change map
+    if (gameState.variables && gameState.variables.german_war_loss === true) {
+        // Maybe change some border provinces
+        // This would be triggered by specific event choices
+    }
+    
+    // Example: If 1919, show Versailles borders
+    if (gameState.year >= 1919) {
+        showPostWarborders();
+    }
+}
+
+// Simple function to show borders for a specific year - optional
+function showPostWarborders() {
+    if (!mapManager) return;
+    
+    // This is where you'd put logic triggered by events
+    // Example: If Poland independent variable is true
+    if (gameState.variables?.poland_independent === true) {
+        // Transfer some provinces to POL1
+        // mapManager.transferProvince('some_id', 'POL1');
+    }
+}
+
+function updateMapTab() {
+    const mapTab = document.getElementById('tab-map');
+    
+    if (!mapTab) return;
+    
+    // Very simple map tab
+    mapTab.innerHTML = `
+        <h3><i class="fas fa-map"></i> European Map</h3>
+        <p style="font-size: 0.9em; color: #666;">${gameState.year} - Visual reference only</p>
+        
+        <div style="margin: 15px 0; padding: 15px; background: rgba(0,0,0,0.05); border-radius: 5px;">
+            <h4>Current Borders</h4>
+            <p style="font-size: 0.9em;">The map shows European borders. Changes occur based on historical events in the game.</p>
+            <p style="font-size: 0.8em; color: #888; margin-top: 10px;">
+                <i class="fas fa-info-circle"></i> This is a visual aid. Game progress happens through event decisions.
+            </p>
+        </div>
+        
+        <div class="map-controls" style="margin: 15px 0;">
+            <button class="map-control-btn" id="inline-map-toggle" style="width: 100%; margin-bottom: 10px;">
+                <i class="fas fa-eye"></i> Show Full Screen Map
+            </button>
+            
+            <div style="margin: 15px 0; padding: 10px; background: rgba(0,0,0,0.1); border-radius: 5px;">
+                <h4>How the map works:</h4>
+                <ul style="font-size: 0.9rem; padding-left: 20px;">
+                    <li>Borders change based on event choices</li>
+                    <li>Click countries to see names</li>
+                    <li>No game mechanics - just visual</li>
+                    <li>Returns to event view after clicking</li>
+                </ul>
+            </div>
+        </div>
+    `;
+    
+    // Reattach toggle button
+    const inlineMapBtn = document.getElementById('inline-map-toggle');
+    if (inlineMapBtn) {
+        inlineMapBtn.addEventListener('click', function() {
+            const mapToggleBtn = document.getElementById('toggle-map-btn');
+            if (mapToggleBtn) mapToggleBtn.click();
+        });
+    }
+}
+
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', function() {
     console.log("DOM loaded, setting up game...");
@@ -378,26 +538,43 @@ document.addEventListener('DOMContentLoaded', function() {
                 pane.classList.remove('active');
             });
             document.getElementById('tab-' + tabName).classList.add('active');
+            
+            if (tabName === 'map') {
+                updateMapTab();
+            }
         });
     });
     
-    // Setup map toggle button
+    // Setup map toggle button - LAZY LOADING
     const toggleMapBtn = document.getElementById('toggle-map-btn');
     if (toggleMapBtn) {
-        toggleMapBtn.addEventListener('click', function() {
+        toggleMapBtn.addEventListener('click', async function() {
             const eventContainer = document.getElementById('event-container');
             const mapContainer = document.getElementById('map-container');
             
             if (eventContainer.style.display !== 'none') {
+                // Switching TO map view - load map now
                 eventContainer.style.display = 'none';
                 mapContainer.style.display = 'block';
+                
                 this.innerHTML = '<i class="fas fa-scroll"></i> Events';
-                this.title = 'Switch back to events view';
+                this.title = 'Return to events';
+                
+                // Initialize map if not already done
+                if (!mapState.initialized) {
+                    await initializeMap();
+                }
+                
             } else {
+                // Switching FROM map view
                 eventContainer.style.display = 'block';
                 mapContainer.style.display = 'none';
                 this.innerHTML = '<i class="fas fa-map"></i> Map';
-                this.title = 'Toggle map view';
+                this.title = 'View European map';
+                
+                // Hide map info box
+                const infoBox = document.getElementById('map-info-box');
+                if (infoBox) infoBox.style.display = 'none';
             }
         });
     }
