@@ -59,6 +59,8 @@ class MapManager {
 // Create singleton instance
 const mapManager = new MapManager();
 
-// Export for use in game.js
+// Export only the mapManager
 export default mapManager;
-export { owners, provinceOwners, ProvinceManager };
+
+// If game.js needs owners and provinceOwners, they should import them directly
+// from owners.js, not from map-init.js
