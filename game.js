@@ -24,7 +24,7 @@ let gameState = {
 let mapState = {
     initialized: false,
     // We'll store which countries are active based on game variables
-    activeCountries: new Set(['GER1', 'FRA1', 'UK', 'AUHUN', 'RUS1', 'IT1', 'MORC']) // 1890 default
+    activeCountries: new Set(['GER1', 'FRA1', 'UK', 'AUHUN', 'RUS1', 'IT1', 'MORC', 'GRE', 'SERB', 'MONT', 'SPA', 'PORT', 'SWI', 'SWE', 'DEN', 'NED', 'LUX', 'BEL']) // 1890 default
 };
 
 // Event data storage
@@ -460,6 +460,17 @@ function showPostWarborders() {
     if (gameState.variables?.poland_independent === true) {
         // Transfer some provinces to POL1
         // mapManager.transferProvince('some_id', 'POL1');
+    }
+}
+
+// Apply map changes based on game state
+function applyMapFromGameState() {
+    if (!mapManager || !mapState.initialized) return;
+    
+    // This is where you'd put logic triggered by events
+    // Example: If 1919, show Versailles borders
+    if (gameState.year >= 1919) {
+        showPostWarborders();
     }
 }
 
