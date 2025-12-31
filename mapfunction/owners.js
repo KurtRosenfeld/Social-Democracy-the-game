@@ -1,4 +1,3 @@
-// mapfunctions/owners.js
 const owners = {
  "GER1": {
         name: "German Empire",
@@ -629,7 +628,7 @@ const provinceOwners = {
     "263": "RUS1",
     "264": "RUS1",
     "265": "RUS1",
-    "266": "GER1",
+    "266": "RUS1",
     "267": "GER1", //Alsace-Lorraine
 };
 
