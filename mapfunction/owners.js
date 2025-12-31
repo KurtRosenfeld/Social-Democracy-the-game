@@ -1,346 +1,365 @@
+// mapfunctions/owners.js
 const owners = {
- "GER1" {
+ "GER1": {
         name: "German Empire",
         color: "#647B8E",
         active: true,
         provinces: []
   },
- "FRA1" {
+ "FRA1": {
         name: "French Republic",
         color: "#2286C4",
         active: true,
         provinces: []
   },
- "UK" {
+ "UK": {
         name: "United Kingdom",
         color: "#C95F5F",
         active: true,
         provinces: []
   },
- "NL" {
+ "NL": {
         name: "Netherlands",
         color: "#DB6121",
         active: true,
         provinces: []
   },
- "BEL" {
+ "BEL": {
         name: "Belgium",
         color: "#DBC805",
         active: true,
         provinces: []
   },
- "LUX" {
+ "LUX": {
         name: "Luxembourg",
         color: "#18A1A8",
         active: true,
         provinces: []
   },
- "SWIZ" {
+ "SWIZ": {
         name: "Switzerland",
         color: "#B2372D",
         active: true,
         provinces: []
   },
- "IT1" {
+ "IT1": {
         name: "Italy",
         color: "#15B70B",
         active: true,
         provinces: []
   },
- "SPA" {
+ "SPA": {
         name: "Spain",
         color: "#D8CE18",
         active: true,
         provinces: []
   },
- "PORT" {
+ "PORT": {
         name: "Portugal",
         color: "#16C45E",
         active: true,
         provinces: []
   },
- "IRE" {
+ "IRE": {
         name: "Ireland",
         color: "#2F7223",
         active: false,
         provinces: []
   },
- "DEN" {
+ "DEN": {
         name: "Denmark",
         color: "#B72777",
         active: true,
         provinces: []
   },
- "ICE" {
+ "ICE": {
         name: "Iceland",
         color: "#4F188C",
         active: false,
         provinces: []
   },
- "SWE" {
+ "SWE": {
         name: "Sweden",
         color: "#25A6D8",
         active: true,
         provinces: []
   },
- "NOR" {
+ "NOR": {
         name: "Norway",
         color: "#8E3543",
         active: false,
         provinces: []
   },
- "AUHUN" {
+ "AUHUN": {
         name: "Austria-Hungary",
         color: "#B2965B",
         active: true,
         provinces: []
   },
- "AUS" {
+ "AUS": {
         name: "Austria",
         color: "#D8CFBF",
         active: false,
         provinces: []
   },
- "HUN" {
+ "HUN": {
         name: "Hungary",
         color: "#DD7724",
         active: false,
         provinces: []
   },
- "CZ" {
+ "CZ": {
         name: "Czechoslovakia",
         color: "#07E2DE",
         active: false,
         provinces: []
   },
- "SOVHUN" {
+ "SOVHUN": {
         name: "Hungarian Council Republic",
         color: "#A02212",
         active: false,
         provinces: []
   },
- "SERB" {
+ "SERB": {
         name: "Serbia",
         color: "#6984C9",
         active: true,
         provinces: []
   },
- "MONT" {
+ "MONT": {
         name: "Montenegro",
         color: "#5EB5C4",
         active: true,
         provinces: []
   },
- "SCS" {
+ "SCS": {
         name: "Kingdom of Serbs, Croats and Slovenes",
         color: "#0F2496",
         active: false,
         provinces: []
   },
- "ROM" {
+ "ROM": {
         name: "Romania",
         color: "#E0CE17",
         active: true,
         provinces: []
   },
- "BUL" {
+ "BUL": {
         name: "Bulgaria",
         color: "#397C30",
         active: false,
         provinces: []
   },
- "ALBA" {
+ "ALBA": {
         name: "Albania",
         color: "#A33416",
         active: false,
         provinces: []
   },
- "GRE" {
+ "GRE": {
         name: "Greece",
         color: "#52CACB",
         active: true,
         provinces: []
   },
- "OTT" {
+ "OTT": {
         name: "Ottoman Empire",
         color: "#668E45",
         active: true,
         provinces: []
   },
- "TURK" {
+ "TURK": {
         name: "Turkish Republic",
         color: "#87BC5B",
         active: false,
         provinces: []
   },
- "MORC" {
+ "MORC": {
         name: "Morocco Sultanate",
         color: "#B7804D",
         active: true,
         provinces: []
   },
- "RUS1" {
+ "RUS1": {
         name: "Russian Empire",
         color: "#85A030",
         active: true,
         provinces: []
   },
- "RUS2" {
+ "RUS2": {
         name: "Russian Republic",
         color: "#40BAA7",
         active: false,
         provinces: []
   },
- "RUS3" {
+ "RUS3": {
         name: "Soviet Russia",
         color: "#960000",
         active: false,
         provinces: []
   },
- "FIN1" {
+ "FIN1": {
         name: "Finland",
         color: "#E8EAEA",
         active: false,
         provinces: []
   },
- "FIN2" {
+ "FIN2": {
         name: "Finnish Soviet Republic",
         color: "#E59E9E",
         active: false,
         provinces: []
   },
- "NORCOR" {
+ "NORCOR": {
         name: "Northern Corps",
         color: "#8CC9D0",
         active: false,
         provinces: []
   },
- "EST1" {
+  "BEL": {
+        name: "SSR of Belyorussia",
+        color: "#ED0000",
+        active: false,
+        provinces: []
+  },
+ "EST1": {
         name: "Estonia",
         color: "#05CED8",
         active: false,
         provinces: []
   },
- "EST2" {
-        name: "Estonian People's republic",
+ "EST2": {
+        name: "Commune of the Working People of Estonia",
         color: "#E52523",
         active: false,
         provinces: []
   },
- "LAT1" {
+ "LAT1": {
         name: "Latvia",
         color: "#AF4C4C",
         active: false,
         provinces: []
   },
- "LAT2" {
-        name: "Latvian People's Republic",
+ "LAT2": {
+        name: "Latvian Sociaslist Soviet Republic",
         color: "#720E0E",
         active: false,
         provinces: []
   },
- "LITH" {
+ "LITH1": {
         name: "Lithuania",
         color: "#8CDB5A",
         active: false,
         provinces: []
   },
- "UKR1" {
+  "LITH2": {
+        name: "Lithuanian Sociaslist Soviet Republic",
+        color: "#B74F90",
+        active: false,
+        provinces: []
+   },
+ "UKR1": {
         name: "Ukrainian People's Republic",
         color: "#F9E61C",
         active: false,
         provinces: []
   },
- "UKR2" {
+ "UKR2": {
         name: "Western Ukraine",
         color: "#9AC42F",
         active: false,
         provinces: []
   },
- "MAK" {
+  "UKR3": {
+        name: "Ukrainian Socialist Soviet Republic",
+        color: "#BF3510",
+        active: false,
+        provinces: []
+  },
+ "MAK": {
         name: "Makhnovschina",
         color: "#141414",
         active: false,
         provinces: []
   },
- "GEO" {
+ "GEO": {
         name: "Democratic Republic of Georgia",
         color: "#D85B46",
         active: false,
         provinces: []
   },
- "KUB" {
+ "KUB": {
         name: "Kuban People's Republic",
         color: "#4D8E8D",
         active: false,
         provinces: []
   },
- "BANA" {
+ "BANA": {
         name: "Banat Republic",
         color: "#B48A31",
         active: false,
         provinces: []
   },
- "PALZ" {
+ "PALZ": {
         name: "United Fraco-British Jerusalem Zone",
         color: "#65457F",
         active: false,
         provinces: []
   },
- "POL1" {
+ "POL1": {
         name: "Poland",
         color: "#C67DC0",
         active: false,
         provinces: []
   },
- "POL2" {
+ "POL2": {
         name: "Polish Kingdom",
         color: "#749AD6",
         active: false,
         provinces: []
   },
-"BAV" {
+ "BAV": {
         name: "Bavarian Council Republic",
         color: "#C11F1F",
         active: false,
         provinces: []
   },
- "SAX" {
+ "SAX": {
         name: "Saxon People's Republic",
         color: "#BA380D",
         active: false,
         provinces: []
   },
- "ALLO" {
+ "ALLO": {
         name: "Alsace-Lorraine Council Republic",
         color: "#D63C3C",
         active: false,
         provinces: []
   },
- "GER2" {
+ "GER2": {
         name: "German Democratic Council Republic",
         color: "#AD0000",
         active: false,
         provinces: []
   },
- "SAAR" {
+ "SAAR": {
         name: "Saargebiet",
         color: "#589ED6",
         active: false,
         provinces: []
   },
- "FRA2" {
+ "FRA2": {
         name: "French Social Republic",
         color: "#D32981",
         active: false,
         provinces: []
   },
- "IT2" {
+ "IT2": {
         name: "Italian Council Republic",
         color: "#E55C5C",
         active: false,
         provinces: []
-  },
+  }
 };
 
 // Province ownership mapping (simple ID → ownerKey)
@@ -421,8 +440,8 @@ const provinceOwners = {
     "074": "SPA",
     "075": "MORC",
     "076": "MORC",
-    "077": "FRA",
-    "078": "FRA",
+    "077": "FRA1",
+    "078": "FRA1",
     "079": "OTT",
     "080": "OTT",
     "081": "OTT",
@@ -470,7 +489,7 @@ const provinceOwners = {
     "123": "OTT",
     "124": "AUHUN",
     "125": "MONT",
-    "116": "AUHUN",
+    "126": "AUHUN",
     "127": "OTT",
     "128": "OTT",
     "129": "SERB",
@@ -525,7 +544,6 @@ const provinceOwners = {
     "178": "SWIZ",
     "179": "SWIZ",
     "180": "SWIZ",
-    "267": "GER1", //Alsace-Lorraine
     "181": "GER1",
     "182": "GER1",
     "183": "GER1",
@@ -551,8 +569,6 @@ const provinceOwners = {
     "203": "GER1",
     "204": "GER1",
     "205": "RUS1",
-    "205": "RUS1",
-    "205": "RUS1",
     "206": "RUS1",
     "207": "RUS1",
     "208": "RUS1",
@@ -572,7 +588,6 @@ const provinceOwners = {
     "222": "RUS1",
     "223": "RUS1",
     "224": "RUS1",
-    "225": "RUS1",
     "225": "RUS1",
     "226": "RUS1",
     "227": "RUS1",
@@ -614,7 +629,8 @@ const provinceOwners = {
     "263": "RUS1",
     "264": "RUS1",
     "265": "RUS1",
- 
+    "266": "GER1",
+    "267": "GER1", //Alsace-Lorraine
+};
 
- 
-
+export { owners, provinceOwners };
