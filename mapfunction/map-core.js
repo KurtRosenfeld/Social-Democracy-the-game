@@ -27,21 +27,21 @@ export class MapCore {
         });
     }
     
-    colorProvinces() {
-        this.provinces.forEach((province, id) => {
-            const ownerKey = owners[id]?.ownerKey || "None";
-            const owner = owners[ownerKey];
-            
-            if (owner && owner.active) {
-                province.style.fill = owner.color;
-            } else {
-                province.style.fill = "#CCCCCC";
-            }
-            
-            province.dataset.ownerKey = ownerKey;
-            province.dataset.provinceId = id;
-        });
-    }
+colorProvinces() {
+    this.provinces.forEach((province, id) => {
+        const ownerKey = provinceOwners[id] || "None";  // Use provinceOwners, not owners!
+        const owner = owners[ownerKey];  // Now look up country by code
+        
+        if (owner && owner.active) {
+            province.style.fill = owner.color;
+        } else {
+            province.style.fill = "#CCCCCC";
+        }
+        
+        province.dataset.ownerKey = ownerKey;
+        province.dataset.provinceId = id;
+    });
+}
     
     getProvince(id) {
         return this.provinces.get(id);
