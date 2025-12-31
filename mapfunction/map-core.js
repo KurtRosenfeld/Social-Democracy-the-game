@@ -28,8 +28,11 @@ export class MapCore {
     }
     
 colorProvinces() {
+    // Import provinceOwners if not already imported
+    import { provinceOwners } from './owners.js';
+    
     this.provinces.forEach((province, id) => {
-        const ownerKey = provinceOwners[id] || "None";  // Use provinceOwners, not owners!
+        const ownerKey = provinceOwners[id] || "None";  // FIXED: Use provinceOwners
         const owner = owners[ownerKey];  // Now look up country by code
         
         if (owner && owner.active) {
