@@ -369,7 +369,7 @@ function getDateDisplay() {
 async function initializeMap() {
     try {
         // Only load map if user clicks map button
-        const mapModule = await import('./mapfunctions/map-init.js');
+        const mapModule = await import('./mapfunction/map-init.js');
         mapManager = mapModule.default;
         
         // Initialize but don't apply any logic
