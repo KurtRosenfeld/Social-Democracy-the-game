@@ -96,18 +96,11 @@ export class MapUI {
         });
     }
     
-    showTooltip(event, provinceId) {
-        const ownerKey = provinceOwners[provinceId] || "None";
-        const owner = owners[ownerKey];
-        
-        this.tooltip.innerHTML = `
-            <strong>Province ${provinceId}</strong><br>
-            <span style="color: ${owner ? owner.color : '#888'}">
-                ${owner ? owner.name : 'Unassigned'}
-            </span>
-        `;
-        this.tooltip.style.display = 'block';
-    }
+showTooltip(event, provinceId) {
+    const ownerKey = provinceOwners[provinceId] || "None";  // FIXED
+    const owner = owners[ownerKey];
+    // ...
+}
     
     hideTooltip() {
         this.tooltip.style.display = 'none';
