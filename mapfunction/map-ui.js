@@ -1,4 +1,4 @@
-import { owners } from './owners.js';
+import { owners, provinceOwners } from './owners.js';
 import { ProvinceManager } from './province-manager.js';
 
 export class MapUI {
