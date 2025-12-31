@@ -32,7 +32,6 @@ let events = [];
 let currentEvent = null;
 
 const EVENT_FOLDER = 'data/events/';
-const mapModule = await import('./mapfunction/test-map-init.js');
 
 // Initialize game
 async function initializeGame() {
